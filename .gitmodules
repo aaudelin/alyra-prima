@@ -1,3 +1,6 @@
 [submodule "backend/lib/forge-std"]
 	path = backend/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "backend/lib/openzeppelin-foundry-upgrades"]
+	path = backend/lib/openzeppelin-foundry-upgrades
+	url = https://github.com/OpenZeppelin/openzeppelin-foundry-upgrades
