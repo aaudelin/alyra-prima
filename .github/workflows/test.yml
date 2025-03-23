@@ -7,6 +7,7 @@ on:
 
 env:
   FOUNDRY_PROFILE: ci
+  BACKEND_DIR: backend
 
 jobs:
   check:
@@ -15,6 +16,9 @@ jobs:
 
     name: Foundry project
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.BACKEND_DIR }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,10 +26,6 @@ jobs:
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
-
-      - name: Go to backend
-        run: |
-          cd backend
 
       - name: Show Forge version
         run: |
