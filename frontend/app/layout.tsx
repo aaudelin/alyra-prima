@@ -4,7 +4,7 @@ import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import Navbar from "./components/Navbar";
 import { Providers } from "./providers";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import Header from "./components/Header";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -35,7 +35,7 @@ export default function RootLayout({
         <Navbar />
         <div className="flex-1">
           <Providers>
-            <ConnectButton />
+            <Header />
             <main className="flex-1">{children}</main>
           </Providers>
         </div>
