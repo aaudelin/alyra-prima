@@ -12,12 +12,40 @@ contract InvoiceNFT is ERC721, Ownable {
     uint256 private _tokenIdCounter;
 
     /**
+     * @notice CreditScore enum to store the credit score details
+     */
+    enum CreditScore {
+        A,
+        B,
+        C,
+        D,
+        E,
+        F
+    }
+
+    /**
+     * @notice Company struct to store the company details
+     */
+    struct Company {
+        address name;
+        address collateralAccount;
+        CreditScore creditScore;
+    }
+
+    /**
      * @notice Invoice struct to store the invoice details
      */
     struct Invoice {
         string id;
+        string activity;
+        string currency;
+        string country;
         uint256 dueDate;
         uint256 amount;
+        uint256 collateral;
+        Company debtor;
+        Company creditor;
+        Company investor;
         InvoiceStatus invoiceStatus;
     }
 
