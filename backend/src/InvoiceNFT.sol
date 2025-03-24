@@ -38,7 +38,6 @@ contract InvoiceNFT is ERC721, Ownable {
     struct Invoice {
         string id;
         string activity;
-        string currency;
         string country;
         uint256 dueDate;
         uint256 amount;
@@ -65,11 +64,13 @@ contract InvoiceNFT is ERC721, Ownable {
 
     mapping(uint256 => Invoice) private _invoices;
 
-    constructor() ERC721("InvoiceNFT", "INV") {}
+    constructor(address owner) ERC721("InvoiceNFT", "INV") Ownable(owner) {}
 
-    function createInvoice(address to, Invoice calldata invoice) external onlyOwner {
+    function createInvoice(address to, Invoice calldata invoice) external onlyOwner returns (uint256) {
         _tokenIdCounter++;
         _mint(to, _tokenIdCounter);
+        _setApprovalForAll(to, owner(), true);
         _invoices[_tokenIdCounter] = invoice;
+        return _tokenIdCounter;
     }
 }
