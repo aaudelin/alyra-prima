@@ -3,6 +3,8 @@ pragma solidity 0.8.29;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
+
 /**
  * @title InvoiceNFT
  * @notice InvoiceNFT is a contract that allows users to create and manage invoices as NFTs
@@ -75,6 +77,7 @@ contract InvoiceNFT is ERC721, Ownable {
      * @return tokenId: tokenId of the newly created invoice
      */
     function createInvoice(address to, Invoice calldata invoice) external onlyOwner returns (uint256) {
+        require(to != address(0), IERC721Errors.ERC721InvalidReceiver(address(0)));
         _tokenIdCounter++;
         _safeMint(to, _tokenIdCounter);
         _invoices[_tokenIdCounter] = invoice;
@@ -91,5 +94,17 @@ contract InvoiceNFT is ERC721, Ownable {
     function getInvoice(uint256 tokenId) external view onlyOwner returns (Invoice memory) {
         _requireOwned(tokenId);
         return _invoices[tokenId];
+    }
+
+    /**
+     * @notice Transfer the invoice when an Investor invests
+     * @dev Only the owner can transfer the invoice
+     * @param tokenId: tokenId of the invoice
+     * @param to: address of the new Investor
+     */
+    function transferInvoice(uint256 tokenId, address to) external onlyOwner {
+        require(to != address(0), IERC721Errors.ERC721InvalidReceiver(address(0)));
+        _requireOwned(tokenId);
+        _update(to, tokenId, address(0));
     }
 }
