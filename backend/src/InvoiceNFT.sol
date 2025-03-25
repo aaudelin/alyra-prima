@@ -83,6 +83,7 @@ contract InvoiceNFT is ERC721, Ownable {
     /**
      * @notice Get the invoice details
      * @dev Only the owner can get the invoice details
+     * @dev The invoice must be minted
      * @param tokenId: tokenId of the invoice
      * @return invoice: Invoice struct containing the invoice details
      */

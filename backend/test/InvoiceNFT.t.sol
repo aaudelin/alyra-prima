@@ -5,6 +5,7 @@ import {Test, console} from "forge-std/Test.sol";
 import {InvoiceNFT} from "../src/InvoiceNFT.sol";
 import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract InvoiceNFTCreateInvoiceTest is Test {
     InvoiceNFT private invoiceNFT;
@@ -53,6 +54,12 @@ contract InvoiceNFTCreateInvoiceTest is Test {
         assertEq(invoiceNFT.ownerOf(tokenId), creditor);
         assertEq(tokenId, 1);
         assertEq(invoiceNFT.balanceOf(creditor), 1);
+    }
+
+    function test_CreateInvoice_Success_Emit() public {
+        vm.expectEmit();
+        emit IERC721.Transfer(address(0), creditor, 1);
+        invoiceNFT.createInvoice(creditor, invoice);
     }
 
     function test_CreateInvoice_Revert_NotOwner() public {
