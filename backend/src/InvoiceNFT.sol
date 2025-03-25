@@ -7,6 +7,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
  * @title InvoiceNFT
  * @notice InvoiceNFT is a contract that allows users to create and manage invoices as NFTs
  * @dev The contract inherits from openzeppelin's ERC721 contract
+ * @dev The contract is owned by the Parent contract (Prima) that is responsible for the minting and transfer of the NFTs
  */
 contract InvoiceNFT is ERC721, Ownable {
     uint256 private _tokenIdCounter;
