@@ -302,6 +302,8 @@ contract InvoiceNFTInvestInvoiceTest is Test {
         uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
         assertEq(invoiceNFT.ownerOf(tokenId), creditor);
         invoiceNFT.acceptInvoice(tokenId, 0);
+        vm.expectEmit();
+        emit IERC721.Transfer(creditor, investor, tokenId);
         invoiceNFT.investInvoice(tokenId, investorCompany);
         assertEq(invoiceNFT.ownerOf(tokenId), investor);
         assertEq(invoiceNFT.getInvoice(tokenId).investor.name, investor);
