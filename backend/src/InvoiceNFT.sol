@@ -82,7 +82,7 @@ contract InvoiceNFT is ERC721, Ownable {
         OVERDUE
     }
 
-    error InvoiceNFT_WrongInvoiceStatus(uint256 tokenId, InvoiceStatus expected, InvoiceStatus actual);
+    error InvoiceNFT_WrongInvoiceStatus(uint256 tokenId, InvoiceStatus actual);
 
     constructor(address owner) ERC721("Prima Invoice", "PIT") Ownable(owner) {}
 
@@ -136,7 +136,7 @@ contract InvoiceNFT is ERC721, Ownable {
         _requireOwned(tokenId);
         require(
             _invoices[tokenId].invoiceStatus == InvoiceStatus.NEW,
-            InvoiceNFT_WrongInvoiceStatus(tokenId, InvoiceStatus.NEW, _invoices[tokenId].invoiceStatus)
+            InvoiceNFT_WrongInvoiceStatus(tokenId, _invoices[tokenId].invoiceStatus)
         );
         _invoices[tokenId].collateral = collateral;
         _invoices[tokenId].invoiceStatus = InvoiceStatus.ACCEPTED;
@@ -152,10 +152,25 @@ contract InvoiceNFT is ERC721, Ownable {
         _requireOwned(tokenId);
         require(
             _invoices[tokenId].invoiceStatus == InvoiceStatus.ACCEPTED,
-            InvoiceNFT_WrongInvoiceStatus(tokenId, InvoiceStatus.ACCEPTED, _invoices[tokenId].invoiceStatus)
+            InvoiceNFT_WrongInvoiceStatus(tokenId, _invoices[tokenId].invoiceStatus)
         );
         _transfer(_ownerOf(tokenId), investor.name, tokenId);
         _invoices[tokenId].investor = investor;
         _invoices[tokenId].invoiceStatus = InvoiceStatus.IN_PROGRESS;
+    }
+
+    /**
+     * @notice Pay the invoice
+     * @dev Only the Owner can pay the invoice
+     * @param tokenId: tokenId of the invoice
+     * @param success: boolean to indicate if the payment was successful
+     */
+    function payInvoice(uint256 tokenId, bool success) external onlyOwner {
+        _requireOwned(tokenId);
+        require(
+            _invoices[tokenId].invoiceStatus == InvoiceStatus.IN_PROGRESS || _invoices[tokenId].invoiceStatus == InvoiceStatus.OVERDUE,
+            InvoiceNFT_WrongInvoiceStatus(tokenId, _invoices[tokenId].invoiceStatus)
+        );
+        _invoices[tokenId].invoiceStatus = success ? InvoiceStatus.PAID : InvoiceStatus.OVERDUE;
     }
 }
