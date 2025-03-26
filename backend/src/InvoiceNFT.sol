@@ -32,7 +32,6 @@ contract InvoiceNFT is ERC721, Ownable {
      */
     struct Company {
         address name;
-        address collateralAccount;
         CreditScore creditScore;
     }
 
@@ -45,6 +44,7 @@ contract InvoiceNFT is ERC721, Ownable {
         string country;
         uint256 dueDate;
         uint256 amount;
+        uint256 amountToPay;
         uint256 collateral;
         Company debtor;
         Company creditor;
@@ -53,18 +53,36 @@ contract InvoiceNFT is ERC721, Ownable {
     }
 
     /**
-     * @notice Invoice status enum 
+     * @notice InvoiceParams struct to request the creation of an invoice
+     */
+    struct InvoiceParams {
+        string id;
+        string activity;
+        string country;
+        uint256 dueDate;
+        uint256 amount;
+        uint256 amountToPay;
+        Company debtor;
+        Company creditor;
+    }
+
+    /**
+     * @notice Invoice status enum
      * @dev NEW: new generated invoice
+     * @dev ACCEPTED: invoice has been accepted by the debtor
      * @dev IN_PROGRESS: invoice has an investor
      * @dev PAID: invoice is paid by the debtor
      * @dev OVERDUE: invoice is overdue
      */
     enum InvoiceStatus {
         NEW,
+        ACCEPTED,
         IN_PROGRESS,
         PAID,
         OVERDUE
     }
+
+    error InvoiceNFT_WrongInvoiceStatus(uint256 tokenId, InvoiceStatus expected, InvoiceStatus actual);
 
     constructor(address owner) ERC721("Prima Invoice", "PIT") Ownable(owner) {}
 
@@ -73,14 +91,26 @@ contract InvoiceNFT is ERC721, Ownable {
      * @dev Only the owner can create a new invoice
      * @dev The invoice is minted to the Creditor
      * @param to: address of the Creditor
-     * @param invoice: Invoice struct containing the invoice details
+     * @param invoiceParams: Invoice struct containing the invoice details
      * @return tokenId: tokenId of the newly created invoice
      */
-    function createInvoice(address to, Invoice calldata invoice) external onlyOwner returns (uint256) {
+    function createInvoice(address to, InvoiceParams calldata invoiceParams) external onlyOwner returns (uint256) {
         require(to != address(0), IERC721Errors.ERC721InvalidReceiver(address(0)));
         _tokenIdCounter++;
         _safeMint(to, _tokenIdCounter);
-        _invoices[_tokenIdCounter] = invoice;
+        _invoices[_tokenIdCounter] = Invoice(
+            invoiceParams.id,
+            invoiceParams.activity,
+            invoiceParams.country,
+            invoiceParams.dueDate,
+            invoiceParams.amount,
+            invoiceParams.amountToPay,
+            0,
+            invoiceParams.debtor,
+            invoiceParams.creditor,
+            Company(address(0), CreditScore.A),
+            InvoiceStatus.NEW
+        );
         return _tokenIdCounter;
     }
 
@@ -97,14 +127,35 @@ contract InvoiceNFT is ERC721, Ownable {
     }
 
     /**
+     * @notice Update the collateral of the invoice
+     * @dev Only the owner can update the collateral
+     * @param tokenId: tokenId of the invoice
+     * @param collateral: new collateral of the invoice
+     */
+    function acceptInvoice(uint256 tokenId, uint256 collateral) external onlyOwner {
+        _requireOwned(tokenId);
+        require(
+            _invoices[tokenId].invoiceStatus == InvoiceStatus.NEW,
+            InvoiceNFT_WrongInvoiceStatus(tokenId, InvoiceStatus.NEW, _invoices[tokenId].invoiceStatus)
+        );
+        _invoices[tokenId].collateral = collateral;
+        _invoices[tokenId].invoiceStatus = InvoiceStatus.ACCEPTED;
+    }
+
+    /**
      * @notice Transfer the invoice when an Investor invests
      * @dev Only the owner can transfer the invoice
      * @param tokenId: tokenId of the invoice
-     * @param to: address of the new Investor
+     * @param investor: Investor struct containing the investor details
      */
-    function transferInvoice(uint256 tokenId, address to) external onlyOwner {
-        require(to != address(0), IERC721Errors.ERC721InvalidReceiver(address(0)));
+    function investInvoice(uint256 tokenId, Company memory investor) external onlyOwner {
         _requireOwned(tokenId);
-        _update(to, tokenId, address(0));
+        require(
+            _invoices[tokenId].invoiceStatus == InvoiceStatus.ACCEPTED,
+            InvoiceNFT_WrongInvoiceStatus(tokenId, InvoiceStatus.ACCEPTED, _invoices[tokenId].invoiceStatus)
+        );
+        _transfer(_ownerOf(tokenId), investor.name, tokenId);
+        _invoices[tokenId].investor = investor;
+        _invoices[tokenId].invoiceStatus = InvoiceStatus.IN_PROGRESS;
     }
 }

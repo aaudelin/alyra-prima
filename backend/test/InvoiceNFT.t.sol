@@ -11,41 +11,27 @@ contract InvoiceNFTCreateInvoiceTest is Test {
     InvoiceNFT private invoiceNFT;
     address private debtor = makeAddr("debtor");
     address private creditor = makeAddr("creditor");
-    address private investor = makeAddr("investor");
     address private owner = address(this);
     InvoiceNFT.Company private creditorCompany;
     InvoiceNFT.Company private debtorCompany;
-    InvoiceNFT.Company private investorCompany;
-    InvoiceNFT.Invoice private invoice;
+    InvoiceNFT.InvoiceParams private invoice;
 
     function setUp() public {
         invoiceNFT = new InvoiceNFT(owner);
-        investorCompany = InvoiceNFT.Company(
-            investor,
-            address(invoiceNFT),
-            InvoiceNFT.CreditScore.C
-        );
-        debtorCompany = InvoiceNFT.Company(
-            debtor,
-            address(invoiceNFT),
-            InvoiceNFT.CreditScore.B
-        );
+        debtorCompany = InvoiceNFT.Company(debtor, InvoiceNFT.CreditScore.B);
         creditorCompany = InvoiceNFT.Company(
             creditor,
-            address(invoiceNFT),
             InvoiceNFT.CreditScore.A
         );
-        invoice = InvoiceNFT.Invoice(
+        invoice = InvoiceNFT.InvoiceParams(
             "1234567890",
             "Activity",
             "USA",
             block.timestamp,
             1000,
-            300,
-            creditorCompany,
+            900,
             debtorCompany,
-            investorCompany,
-            InvoiceNFT.InvoiceStatus.NEW
+            creditorCompany
         );
     }
 
@@ -54,6 +40,13 @@ contract InvoiceNFTCreateInvoiceTest is Test {
         assertEq(invoiceNFT.ownerOf(tokenId), creditor);
         assertEq(tokenId, 1);
         assertEq(invoiceNFT.balanceOf(creditor), 1);
+        assertEq(invoiceNFT.getInvoice(tokenId).id, invoice.id);
+        assertEq(
+            uint256(invoiceNFT.getInvoice(tokenId).invoiceStatus),
+            uint256(InvoiceNFT.InvoiceStatus.NEW)
+        );
+        assertEq(invoiceNFT.getInvoice(tokenId).collateral, 0);
+        assertEq(invoiceNFT.getInvoice(tokenId).investor.name, address(0));
     }
 
     function test_CreateInvoice_Success_Emit() public {
@@ -65,23 +58,24 @@ contract InvoiceNFTCreateInvoiceTest is Test {
     function test_CreateInvoice_Revert_NotOwner() public {
         vm.prank(debtor);
         vm.expectRevert(
-            abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, debtor)
+            abi.encodeWithSelector(
+                Ownable.OwnableUnauthorizedAccount.selector,
+                debtor
+            )
         );
         invoiceNFT.createInvoice(creditor, invoice);
     }
 
     function test_CreateInvoice_MutipleInvoices() public {
-        InvoiceNFT.Invoice memory invoice2 = InvoiceNFT.Invoice(
+        InvoiceNFT.InvoiceParams memory invoice2 = InvoiceNFT.InvoiceParams(
             "1111111111",
             "Military",
             "France",
             block.timestamp,
             3000,
             900,
-            creditorCompany,
             debtorCompany,
-            investorCompany,
-            InvoiceNFT.InvoiceStatus.NEW
+            creditorCompany
         );
 
         uint256 tokenId1 = invoiceNFT.createInvoice(creditor, invoice);
@@ -103,7 +97,10 @@ contract InvoiceNFTCreateInvoiceTest is Test {
 
     function test_CreateInvoice_Revert_ZeroAddress() public {
         vm.expectRevert(
-            abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, address(0))
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721InvalidReceiver.selector,
+                address(0)
+            )
         );
         invoiceNFT.createInvoice(address(0), invoice);
     }
@@ -113,62 +110,56 @@ contract InvoiceNFTGetInvoiceTest is Test {
     InvoiceNFT private invoiceNFT;
     address private debtor = makeAddr("debtor");
     address private creditor = makeAddr("creditor");
-    address private investor = makeAddr("investor");
     address private owner = address(this);
     InvoiceNFT.Company private creditorCompany;
     InvoiceNFT.Company private debtorCompany;
-    InvoiceNFT.Company private investorCompany;
-    InvoiceNFT.Invoice private invoice;
+    InvoiceNFT.InvoiceParams private invoice;
 
     function setUp() public {
         invoiceNFT = new InvoiceNFT(owner);
-        investorCompany = InvoiceNFT.Company(
-            investor,
-            address(invoiceNFT),
-            InvoiceNFT.CreditScore.C
-        );
-        debtorCompany = InvoiceNFT.Company(
-            debtor,
-            address(invoiceNFT),
-            InvoiceNFT.CreditScore.B
-        );
+        debtorCompany = InvoiceNFT.Company(debtor, InvoiceNFT.CreditScore.B);
         creditorCompany = InvoiceNFT.Company(
             creditor,
-            address(invoiceNFT),
             InvoiceNFT.CreditScore.A
         );
-        invoice = InvoiceNFT.Invoice(
+        invoice = InvoiceNFT.InvoiceParams(
             "1234567890",
             "Activity",
             "USA",
             block.timestamp,
             1000,
-            300,
-            creditorCompany,
+            900,
             debtorCompany,
-            investorCompany,
-            InvoiceNFT.InvoiceStatus.NEW
+            creditorCompany
         );
     }
 
     function test_GetInvoice_Success() public {
         uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
-        InvoiceNFT.Invoice memory retrievedInvoice = invoiceNFT.getInvoice(tokenId);
+        InvoiceNFT.Invoice memory retrievedInvoice = invoiceNFT.getInvoice(
+            tokenId
+        );
         assertEq(retrievedInvoice.id, invoice.id);
     }
-    
+
     function test_GetInvoice_Revert_NotOwner() public {
         uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
         vm.prank(debtor);
         vm.expectRevert(
-            abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, debtor)
+            abi.encodeWithSelector(
+                Ownable.OwnableUnauthorizedAccount.selector,
+                debtor
+            )
         );
         invoiceNFT.getInvoice(tokenId);
     }
 
     function testFuzz_GetInvoice_Revert_NotMinted(uint256 tokenId) public {
         vm.expectRevert(
-            abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, tokenId)
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                tokenId
+            )
         );
         invoiceNFT.getInvoice(tokenId);
     }
@@ -177,84 +168,185 @@ contract InvoiceNFTGetInvoiceTest is Test {
         invoiceNFT.createInvoice(creditor, invoice);
         if (tokenId != 1) {
             vm.expectRevert(
-                abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, tokenId)
+                abi.encodeWithSelector(
+                    IERC721Errors.ERC721NonexistentToken.selector,
+                    tokenId
+                )
             );
             invoiceNFT.getInvoice(tokenId);
         }
-    } 
+    }
 }
 
-contract InvoiceNFTTransferInvoiceTest is Test {
+contract InvoiceNFTAcceptInvoiceTest is Test {
     InvoiceNFT private invoiceNFT;
     address private debtor = makeAddr("debtor");
     address private creditor = makeAddr("creditor");
-    address private investor = makeAddr("investor");
     address private owner = address(this);
     InvoiceNFT.Company private creditorCompany;
     InvoiceNFT.Company private debtorCompany;
-    InvoiceNFT.Company private investorCompany;
-    InvoiceNFT.Invoice private invoice;
+    InvoiceNFT.InvoiceParams private invoice;
 
     function setUp() public {
         invoiceNFT = new InvoiceNFT(owner);
-        investorCompany = InvoiceNFT.Company(
-            investor,
-            address(invoiceNFT),
-            InvoiceNFT.CreditScore.C
-        );
-        debtorCompany = InvoiceNFT.Company(
-            debtor,
-            address(invoiceNFT),
-            InvoiceNFT.CreditScore.B
-        );
+        debtorCompany = InvoiceNFT.Company(debtor, InvoiceNFT.CreditScore.B);
         creditorCompany = InvoiceNFT.Company(
             creditor,
-            address(invoiceNFT),
             InvoiceNFT.CreditScore.A
         );
-        
-        invoice = InvoiceNFT.Invoice(
+        invoice = InvoiceNFT.InvoiceParams(
+            "1234567890",
+            "Activity",
+            "USA",
+            block.timestamp,
+            1000,
+            900,
+            debtorCompany,
+            creditorCompany
+        );
+    }
+
+    function test_AcceptInvoice_SuccessNoCollateral() public {
+        uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
+        invoiceNFT.acceptInvoice(tokenId, 0);
+        assertEq(invoiceNFT.ownerOf(tokenId), creditor);
+        assertEq(
+            uint256(invoiceNFT.getInvoice(tokenId).invoiceStatus),
+            uint256(InvoiceNFT.InvoiceStatus.ACCEPTED)
+        );
+        assertEq(invoiceNFT.getInvoice(tokenId).collateral, 0);
+    }
+
+    function test_AcceptInvoice_SuccessWithCollateral() public {
+        uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
+        invoiceNFT.acceptInvoice(tokenId, 100);
+        assertEq(invoiceNFT.ownerOf(tokenId), creditor);
+        assertEq(
+            uint256(invoiceNFT.getInvoice(tokenId).invoiceStatus),
+            uint256(InvoiceNFT.InvoiceStatus.ACCEPTED)
+        );
+        assertEq(invoiceNFT.getInvoice(tokenId).collateral, 100);
+    }
+
+    function test_AcceptInvoice_Revert_NotOwner() public {
+        uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
+        vm.prank(debtor);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Ownable.OwnableUnauthorizedAccount.selector,
+                debtor
+            )
+        );
+        invoiceNFT.acceptInvoice(tokenId, 0);
+    }
+
+    function test_AcceptInvoice_Revert_NotMinted() public {
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                1
+            )
+        );
+        invoiceNFT.acceptInvoice(1, 0);
+    }
+
+    function test_AcceptInvoice_Revert_WrongStatus() public {
+        uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
+        invoiceNFT.acceptInvoice(tokenId, 0);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                InvoiceNFT.InvoiceNFT_WrongInvoiceStatus.selector,
+                tokenId,
+                uint256(InvoiceNFT.InvoiceStatus.NEW),
+                uint256(InvoiceNFT.InvoiceStatus.ACCEPTED)
+            )
+        );
+        invoiceNFT.acceptInvoice(tokenId, 0);
+    }
+}
+
+contract InvoiceNFTInvestInvoiceTest is Test {
+    InvoiceNFT private invoiceNFT;
+    address private investor = makeAddr("investor");
+    address private debtor = makeAddr("debtor");
+    address private creditor = makeAddr("creditor");
+    address private owner = address(this);
+    InvoiceNFT.Company private investorCompany;
+    InvoiceNFT.Company private creditorCompany;
+    InvoiceNFT.Company private debtorCompany;
+    InvoiceNFT.InvoiceParams private invoice;
+
+    function setUp() public {
+        invoiceNFT = new InvoiceNFT(owner);
+        debtorCompany = InvoiceNFT.Company(debtor, InvoiceNFT.CreditScore.B);
+        creditorCompany = InvoiceNFT.Company(
+            creditor,
+            InvoiceNFT.CreditScore.A
+        );
+        investorCompany = InvoiceNFT.Company(
+            investor,
+            InvoiceNFT.CreditScore.A
+        );
+        invoice = InvoiceNFT.InvoiceParams(
             "1234567890",
             "Activity",
             "USA",
             block.timestamp,
             1000,
             300,
-            creditorCompany,
             debtorCompany,
-            investorCompany,
-            InvoiceNFT.InvoiceStatus.NEW
+            creditorCompany
         );
     }
 
-    function test_TransferInvoice_Success() public {
+    function test_InvestInvoice_Success() public {
         uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
-        invoiceNFT.transferInvoice(tokenId, investor);
+        assertEq(invoiceNFT.ownerOf(tokenId), creditor);
+        invoiceNFT.acceptInvoice(tokenId, 0);
+        invoiceNFT.investInvoice(tokenId, investorCompany);
         assertEq(invoiceNFT.ownerOf(tokenId), investor);
+        assertEq(invoiceNFT.getInvoice(tokenId).investor.name, investor);
+        assertEq(
+            uint256(invoiceNFT.getInvoice(tokenId).invoiceStatus),
+            uint256(InvoiceNFT.InvoiceStatus.IN_PROGRESS)
+        );
     }
 
-    function test_TransferInvoice_Revert_NotOwner() public {
+    function test_InvestInvoice_Revert_NotOwner() public {
         uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
+        invoiceNFT.acceptInvoice(tokenId, 0);
         vm.prank(debtor);
         vm.expectRevert(
-            abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, debtor)
+            abi.encodeWithSelector(
+                Ownable.OwnableUnauthorizedAccount.selector,
+                debtor
+            )
         );
-        invoiceNFT.transferInvoice(tokenId, investor);
+        invoiceNFT.investInvoice(tokenId, investorCompany);
     }
 
-    function test_TransferInvoice_Revert_NotMinted() public {
+    function test_InvestInvoice_Revert_NotMinted() public {
         vm.expectRevert(
-            abi.encodeWithSelector(IERC721Errors.ERC721NonexistentToken.selector, 1)
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721NonexistentToken.selector,
+                1
+            )
         );
-        invoiceNFT.transferInvoice(1, investor);
+        invoiceNFT.investInvoice(1, investorCompany);
     }
 
-    function test_TransferInvoice_ZeroAddress() public {
+    function test_InvestInvoice_ZeroAddress() public {
         uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
+        invoiceNFT.acceptInvoice(tokenId, 0);
         vm.expectRevert(
-            abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, address(0))
+            abi.encodeWithSelector(
+                IERC721Errors.ERC721InvalidReceiver.selector,
+                address(0)
+            )
         );
-        invoiceNFT.transferInvoice(tokenId, address(0));
+        invoiceNFT.investInvoice(
+            tokenId,
+            InvoiceNFT.Company(address(0), InvoiceNFT.CreditScore.A)
+        );
     }
-    
 }
