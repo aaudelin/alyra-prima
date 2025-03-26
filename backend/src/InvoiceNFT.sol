@@ -29,6 +29,8 @@ contract InvoiceNFT is ERC721, Ownable {
 
     /**
      * @notice Company struct to store the company details
+     * @param name: address of the company
+     * @param creditScore: credit score of the company
      */
     struct Company {
         address name;
@@ -37,6 +39,17 @@ contract InvoiceNFT is ERC721, Ownable {
 
     /**
      * @notice Invoice struct to store the invoice details
+     * @param id: id of the invoice
+     * @param activity: activity field related to the invoice (e.g. "Export of goods")
+     * @param country: country for the taxes
+     * @param dueDate: due
+     * @param amount: amount in token that must be paid byt the debtor (in PrimaToken only)
+     * @param amountToPay: amount to pay of the invoice by the investor
+     * @param collateral: collateral amount associated by the debtor
+     * @param debtor: debtor company details
+     * @param creditor: creditor company details
+     * @param investor: investor company details
+     * @param invoiceStatus: status of the invoice
      */
     struct Invoice {
         string id;
@@ -54,6 +67,14 @@ contract InvoiceNFT is ERC721, Ownable {
 
     /**
      * @notice InvoiceParams struct to request the creation of an invoice
+     * @param id: id of the invoice
+     * @param activity: activity field related to the invoice (e.g. "Export of goods")
+     * @param country: country for the taxes
+     * @param dueDate: due
+     * @param amount: amount in token that must be paid byt the debtor (in PrimaToken only)
+     * @param amountToPay: amount to pay of the invoice by the investor
+     * @param debtor: debtor company details
+     * @param creditor: creditor company details
      */
     struct InvoiceParams {
         string id;
