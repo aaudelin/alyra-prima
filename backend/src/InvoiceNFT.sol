@@ -173,7 +173,8 @@ contract InvoiceNFT is ERC721, Ownable {
     function payInvoice(uint256 tokenId, bool success) external onlyOwner {
         _requireOwned(tokenId);
         require(
-            _invoices[tokenId].invoiceStatus == InvoiceStatus.IN_PROGRESS || _invoices[tokenId].invoiceStatus == InvoiceStatus.OVERDUE,
+            _invoices[tokenId].invoiceStatus == InvoiceStatus.IN_PROGRESS
+                || _invoices[tokenId].invoiceStatus == InvoiceStatus.OVERDUE,
             InvoiceNFT_WrongInvoiceStatus(tokenId, _invoices[tokenId].invoiceStatus)
         );
         _invoices[tokenId].invoiceStatus = success ? InvoiceStatus.PAID : InvoiceStatus.OVERDUE;
