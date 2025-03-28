@@ -11,34 +11,20 @@ contract Prima {
     mapping(address => uint256[]) private creditorInvoices;
     mapping(address => uint256[]) private investorInvoices;
 
-    error Prima_InvalidAmount(
-        uint256 amount,
-        uint256 minimumAmount,
-        uint256 maximumAmount
-    );
+    error Prima_InvalidAmount(uint256 amount, uint256 minimumAmount, uint256 maximumAmount);
 
     function addCollateral(uint256 collateralAmount) external view {}
 
-    function computeAmounts(
-        uint256 amount,
-        InvoiceNFT.CreditScore debtorCreditScore
-    )
+    function computeAmounts(uint256 amount, InvoiceNFT.CreditScore debtorCreditScore)
         public
         view
         virtual
         returns (uint256 minimumAmount, uint256 maximumAmount)
     {}
 
-    function generateInvoice(
-        InvoiceNFT.InvoiceParams calldata invoiceParams
-    ) external returns (uint256) {
+    function generateInvoice(InvoiceNFT.InvoiceParams calldata invoiceParams) external returns (uint256) {}
 
-    }
-
-    function acceptInvoice(
-        uint256 tokenId,
-        uint256 collateralAmount
-    ) external {}
+    function acceptInvoice(uint256 tokenId, uint256 collateralAmount) external {}
 
     function invest(uint256 tokenId) external {}
 

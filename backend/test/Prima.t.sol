@@ -10,7 +10,7 @@ contract PrimaCollateralTest is Test {
     InvoiceNFT invoiceNFT;
 
     address debtor = makeAddr("debtor");
-    address creditor = makeAddr("creditor"); 
+    address creditor = makeAddr("creditor");
     address investor = makeAddr("investor");
 
     address private owner = address(this);
@@ -25,6 +25,4 @@ contract PrimaCollateralTest is Test {
         vm.deal(creditor, 100 ether);
         vm.deal(investor, 100 ether);
     }
-
-
 }
