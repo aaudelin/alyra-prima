@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {Prima} from "../src/Prima.sol";
 import {InvoiceNFT} from "../src/InvoiceNFT.sol";
 
-contract PrimaTest is Test {
+contract PrimaCollateralTest is Test {
     Prima prima;
     InvoiceNFT invoiceNFT;
 
