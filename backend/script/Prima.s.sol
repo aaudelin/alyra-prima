@@ -12,7 +12,7 @@ contract PrimaScript is Script {
     function setUp() public {}
 
     function run() public {
-        vm.startBroadcast();
+        vm.startBroadcast(msg.sender);
         
         InvoiceNFT invoiceNFT = new InvoiceNFT(msg.sender);
         Collateral collateral = new Collateral(msg.sender);
