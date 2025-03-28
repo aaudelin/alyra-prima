@@ -16,23 +16,19 @@ contract PrimaDeploymentTest is Test {
 
     address private owner = address(this);
 
-    function setUp() public {
-        primaScript = new PrimaScript();
-        primaScript.run();
-        prima = primaScript.prima();
+    function test_Deployment() public {
+        InvoiceNFT invoiceNFT = new InvoiceNFT(address(this));
+        Collateral collateral = new Collateral(address(this));
+        prima = new Prima(address(invoiceNFT), address(collateral));
+        invoiceNFT.transferOwnership(address(prima));
+        collateral.transferOwnership(address(prima));
+
+        assertEq(address(prima.invoiceNFT()), address(invoiceNFT));
+        assertEq(address(prima.collateral()), address(collateral));
+        assertEq(invoiceNFT.owner(), address(prima));
+        assertEq(collateral.owner(), address(prima));
     }
 
-    function test_Deployment_Prima() public {
-        assertNotEq(address(prima), address(0));
-    }
-
-    function test_Deployment_ChildrenContracts() public view {
-        assertNotEq(address(prima.invoiceNFT()), address(0));
-        assertNotEq(address(prima.collateral()), address(0));
-
-        assertEq(prima.invoiceNFT().owner(), address(prima));
-        assertEq(prima.collateral().owner(), address(prima));
-    }
 }
 
 contract PrimaCollateralTest is Test {

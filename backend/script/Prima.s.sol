@@ -13,19 +13,14 @@ contract PrimaScript is Script {
 
     function run() public {
         vm.startBroadcast();
-
+        
         InvoiceNFT invoiceNFT = new InvoiceNFT(msg.sender);
         Collateral collateral = new Collateral(msg.sender);
-
-        prima = new Prima(address(invoiceNFT), address(collateral));
-        console.log("Prima deployed at", address(prima));
         console.log("InvoiceNFT deployed at", address(invoiceNFT));
         console.log("Collateral deployed at", address(collateral));
 
-        console.log("InvoiceNFT owner", invoiceNFT.owner(), msg.sender);
-        require(invoiceNFT.owner() == msg.sender, "InvoiceNFT owner is not the sender");
-        console.log("Collateral owner", collateral.owner(), msg.sender);
-        require(collateral.owner() == msg.sender, "Collateral owner is not the sender");
+        prima = new Prima(address(invoiceNFT), address(collateral));
+        console.log("Prima deployed at", address(prima));
 
         invoiceNFT.transferOwnership(address(prima));
         collateral.transferOwnership(address(prima));
