@@ -3,7 +3,6 @@ pragma solidity 0.8.29;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
 /**
  * @title InvoiceNFT
@@ -118,7 +117,6 @@ contract InvoiceNFT is ERC721, Ownable {
      * @return tokenId: tokenId of the newly created invoice
      */
     function createInvoice(address to, InvoiceParams calldata invoiceParams) external onlyOwner returns (uint256) {
-        require(to != address(0), IERC721Errors.ERC721InvalidReceiver(address(0)));
         _tokenIdCounter++;
         _safeMint(to, _tokenIdCounter);
         _invoices[_tokenIdCounter] = Invoice(

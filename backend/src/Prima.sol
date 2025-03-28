@@ -39,9 +39,9 @@ contract Prima {
      * @notice Constructor
      * @dev Initializes the InvoiceNFT and Collateral contracts as the owner of the contracts
      */
-    constructor() {
-        invoiceNFT = new InvoiceNFT(address(this));
-        collateral = new Collateral(address(this));
+    constructor(address invoiceNFTAddress, address collateralAddress) {
+        invoiceNFT = InvoiceNFT(invoiceNFTAddress);
+        collateral = Collateral(collateralAddress);
     }
 
     error Prima_InvalidAmount(uint256 amount, uint256 minimumAmount, uint256 maximumAmount);
