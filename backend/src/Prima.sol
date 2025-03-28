@@ -2,21 +2,39 @@
 pragma solidity 0.8.29;
 
 import {InvoiceNFT} from "./InvoiceNFT.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
 
-abstract contract Prima {
+contract Prima {
+    using Math for uint256;
+
     mapping(address => uint256[]) private debtorInvoices;
     mapping(address => uint256[]) private creditorInvoices;
     mapping(address => uint256[]) private investorInvoices;
 
-    function addCollateral(uint256 collateralAmount) external virtual;
+    function addCollateral(
+        uint256 collateralAmount
+    ) external view {}
 
-    function generateInvoice(InvoiceNFT.Invoice calldata invoice) external virtual returns (uint256);
+    function computeAmounts(
+        uint256 amount,
+        InvoiceNFT.CreditScore debtorCreditScore
+    )
+        public
+        view
+        virtual
+        returns (uint256 minimumAmount, uint256 maximumAmount)
+    {}
 
-    function acceptInvoice(uint256 tokenId, uint256 collateralAmount) external virtual;
+    function generateInvoice(
+        InvoiceNFT.InvoiceParameters calldata invoiceParams
+    ) external returns (uint256) {}
 
-    function invest(uint256 tokenId) external virtual;
+    function acceptInvoice(
+        uint256 tokenId,
+        uint256 collateralAmount
+    ) external {}
 
-    function pay(uint256 tokenId) external virtual;
+    function invest(uint256 tokenId) external {}
 
-    function computeAmount(InvoiceNFT.Invoice calldata invoice) external view virtual returns (uint256);
+    function pay(uint256 tokenId) external {}
 }
