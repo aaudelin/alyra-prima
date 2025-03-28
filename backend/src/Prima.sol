@@ -26,7 +26,15 @@ contract Prima {
 
     function acceptInvoice(uint256 tokenId, uint256 collateralAmount) external {}
 
-    function invest(uint256 tokenId) external {}
+    function investInvoice(uint256 tokenId) external {}
 
-    function pay(uint256 tokenId) external {}
+    function payInvoice(uint256 tokenId) external {}
+
+    function getInvoice(uint256 tokenId) external view returns (InvoiceNFT.Invoice memory) {}
+
+    function getDebtorInvoices(address debtor) external view returns (uint256[] memory) {}
+
+    function getCreditorInvoices(address creditor) external view returns (uint256[] memory) {}
+
+    function getInvestorInvoices(address investor) external view returns (uint256[] memory) {}
 }
