@@ -40,7 +40,7 @@ contract InvoiceNFTCreateInvoiceTest is Test {
         vm.expectEmit();
         emit IERC721.Transfer(address(0), creditor, 1);
         vm.expectEmit();
-        emit InvoiceNFT.StatusChanged(1, InvoiceNFT.InvoiceStatus.NEW);
+        emit InvoiceNFT.InvoiceNFT_StatusChanged(1, InvoiceNFT.InvoiceStatus.NEW);
         invoiceNFT.createInvoice(creditor, invoice);
     }
 
@@ -144,7 +144,7 @@ contract InvoiceNFTAcceptInvoiceTest is Test {
     function test_AcceptInvoice_SuccessNoCollateral() public {
         uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
         vm.expectEmit();
-        emit InvoiceNFT.StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.ACCEPTED);
+        emit InvoiceNFT.InvoiceNFT_StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.ACCEPTED);
         invoiceNFT.acceptInvoice(tokenId, 0);
         assertEq(invoiceNFT.ownerOf(tokenId), creditor);
         assertEq(uint256(invoiceNFT.getInvoice(tokenId).invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.ACCEPTED));
@@ -154,7 +154,7 @@ contract InvoiceNFTAcceptInvoiceTest is Test {
     function test_AcceptInvoice_SuccessWithCollateral() public {
         uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
         vm.expectEmit();
-        emit InvoiceNFT.StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.ACCEPTED);
+        emit InvoiceNFT.InvoiceNFT_StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.ACCEPTED);
         invoiceNFT.acceptInvoice(tokenId, 100);
         assertEq(invoiceNFT.ownerOf(tokenId), creditor);
         assertEq(uint256(invoiceNFT.getInvoice(tokenId).invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.ACCEPTED));
@@ -213,7 +213,7 @@ contract InvoiceNFTInvestInvoiceTest is Test {
         vm.expectEmit();
         emit IERC721.Transfer(creditor, investor, tokenId);
         vm.expectEmit();
-        emit InvoiceNFT.StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.IN_PROGRESS);
+        emit InvoiceNFT.InvoiceNFT_StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.IN_PROGRESS);
         invoiceNFT.investInvoice(tokenId, investorCompany);
         assertEq(invoiceNFT.ownerOf(tokenId), investor);
         assertEq(invoiceNFT.getInvoice(tokenId).investor.name, investor);
@@ -277,7 +277,7 @@ contract InvoiceNFTPayInvoiceTest is Test {
         invoiceNFT.acceptInvoice(tokenId, 0);
         invoiceNFT.investInvoice(tokenId, investorCompany);
         vm.expectEmit();
-        emit InvoiceNFT.StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.PAID);
+        emit InvoiceNFT.InvoiceNFT_StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.PAID);
         invoiceNFT.payInvoice(tokenId, true);
         assertEq(uint256(invoiceNFT.getInvoice(tokenId).invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.PAID));
     }
@@ -289,7 +289,7 @@ contract InvoiceNFTPayInvoiceTest is Test {
         invoiceNFT.payInvoice(tokenId, false);
         assertEq(uint256(invoiceNFT.getInvoice(tokenId).invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.OVERDUE));
         vm.expectEmit();
-        emit InvoiceNFT.StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.PAID);
+        emit InvoiceNFT.InvoiceNFT_StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.PAID);
         invoiceNFT.payInvoice(tokenId, true);
         assertEq(uint256(invoiceNFT.getInvoice(tokenId).invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.PAID));
     }
@@ -299,7 +299,7 @@ contract InvoiceNFTPayInvoiceTest is Test {
         invoiceNFT.acceptInvoice(tokenId, 0);
         invoiceNFT.investInvoice(tokenId, investorCompany);
         vm.expectEmit();
-        emit InvoiceNFT.StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.OVERDUE);
+        emit InvoiceNFT.InvoiceNFT_StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.OVERDUE);
         invoiceNFT.payInvoice(tokenId, false);
         assertEq(uint256(invoiceNFT.getInvoice(tokenId).invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.OVERDUE));
     }

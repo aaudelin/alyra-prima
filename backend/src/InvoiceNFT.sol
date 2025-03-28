@@ -105,7 +105,7 @@ contract InvoiceNFT is ERC721, Ownable {
 
     error InvoiceNFT_WrongInvoiceStatus(uint256 tokenId, InvoiceStatus actual);
 
-    event StatusChanged(uint256 tokenId, InvoiceStatus newStatus);
+    event InvoiceNFT_StatusChanged(uint256 tokenId, InvoiceStatus newStatus);
 
     constructor(address owner) ERC721("Prima Invoice", "PIT") Ownable(owner) {}
 
@@ -134,7 +134,7 @@ contract InvoiceNFT is ERC721, Ownable {
             Company(address(0), CreditScore.A),
             InvoiceStatus.NEW
         );
-        emit StatusChanged(_tokenIdCounter, InvoiceStatus.NEW);
+        emit InvoiceNFT_StatusChanged(_tokenIdCounter, InvoiceStatus.NEW);
         return _tokenIdCounter;
     }
 
@@ -164,7 +164,7 @@ contract InvoiceNFT is ERC721, Ownable {
         );
         _invoices[tokenId].collateral = collateral;
         _invoices[tokenId].invoiceStatus = InvoiceStatus.ACCEPTED;
-        emit StatusChanged(tokenId, InvoiceStatus.ACCEPTED);
+        emit InvoiceNFT_StatusChanged(tokenId, InvoiceStatus.ACCEPTED);
     }
 
     /**
@@ -182,7 +182,7 @@ contract InvoiceNFT is ERC721, Ownable {
         _transfer(_ownerOf(tokenId), investor.name, tokenId);
         _invoices[tokenId].investor = investor;
         _invoices[tokenId].invoiceStatus = InvoiceStatus.IN_PROGRESS;
-        emit StatusChanged(tokenId, InvoiceStatus.IN_PROGRESS);
+        emit InvoiceNFT_StatusChanged(tokenId, InvoiceStatus.IN_PROGRESS);
     }
 
     /**
@@ -199,6 +199,6 @@ contract InvoiceNFT is ERC721, Ownable {
             InvoiceNFT_WrongInvoiceStatus(tokenId, _invoices[tokenId].invoiceStatus)
         );
         _invoices[tokenId].invoiceStatus = success ? InvoiceStatus.PAID : InvoiceStatus.OVERDUE;
-        emit StatusChanged(tokenId, _invoices[tokenId].invoiceStatus);
+        emit InvoiceNFT_StatusChanged(tokenId, _invoices[tokenId].invoiceStatus);
     }
 }
