@@ -15,8 +15,8 @@ contract PrimaToken is ERC20 {
 
     /**
      * @notice Mint the amount of tokens to the address
-     * @param to: The address to mint the token to
-     * @param amount: The amount of tokens to mint
+     * @param to The address to mint the token to
+     * @param amount The amount of tokens to mint
      */
     function mint(address to, uint256 amount) public {
         _mint(to, amount);

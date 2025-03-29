@@ -24,7 +24,8 @@ contract Collateral is Ownable {
 
     /**
      * @notice Constructor
-     * @param owner: The owner of the contract
+     * @param owner The owner of the contract
+     * @param primaTokenAddress The address of the PrimaToken contract
      */
     constructor(address owner, address primaTokenAddress) Ownable(owner) {
         primaToken = PrimaToken(primaTokenAddress);
@@ -35,8 +36,8 @@ contract Collateral is Ownable {
     /**
      * @notice Deposit the collateral amount to the address
      * @dev This function also allows the owner to spend the collateral amount
-     * @param to: The address to deposit the collateral to
-     * @param collateralAmount: The amount of collateral to deposit
+     * @param to The address to deposit the collateral to
+     * @param collateralAmount The amount of collateral to deposit
      */
     function deposit(address to, uint256 collateralAmount) external onlyOwner {
         collateral[to] += collateralAmount;
@@ -45,8 +46,8 @@ contract Collateral is Ownable {
 
     /**
      * @notice Withdraw the collateral amount from the address
-     * @param from: The address to withdraw the collateral from
-     * @param collateralAmount: The amount of collateral to withdraw
+     * @param from The address to withdraw the collateral from
+     * @param collateralAmount The amount of collateral to withdraw
      */
     function withdraw(address from, uint256 collateralAmount) external onlyOwner {
         require(
@@ -58,8 +59,8 @@ contract Collateral is Ownable {
 
     /**
      * @notice Get the collateral amount of the address
-     * @param account: The address to get the collateral amount from
-     * @return collateralAmount: The amount of collateral
+     * @param account The address to get the collateral amount from
+     * @return collateralAmount The amount of collateral
      */
     function getCollateral(address account) external view onlyOwner returns (uint256) {
         return collateral[account];

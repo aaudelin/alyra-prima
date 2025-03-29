@@ -29,8 +29,8 @@ contract InvoiceNFT is ERC721, Ownable {
 
     /**
      * @notice Company struct to store the company details
-     * @param name: address of the company
-     * @param creditScore: credit score of the company
+     * @param name address of the company
+     * @param creditScore credit score of the company
      */
     struct Company {
         address name;
@@ -39,17 +39,17 @@ contract InvoiceNFT is ERC721, Ownable {
 
     /**
      * @notice Invoice struct to store the invoice details
-     * @param id: id of the invoice
-     * @param activity: activity field related to the invoice (e.g. "Export of goods")
-     * @param country: country for the taxes
-     * @param dueDate: due
-     * @param amount: amount in token that must be paid byt the debtor (in PrimaToken only)
-     * @param amountToPay: amount to pay of the invoice by the investor
-     * @param collateral: collateral amount associated by the debtor
-     * @param debtor: debtor company details
-     * @param creditor: creditor company details
-     * @param investor: investor company details
-     * @param invoiceStatus: status of the invoice
+     * @param id id of the invoice
+     * @param activity activity field related to the invoice (e.g. "Export of goods")
+     * @param country country for the taxes
+     * @param dueDate due
+     * @param amount amount in token that must be paid byt the debtor (in PrimaToken only)
+     * @param amountToPay amount to pay of the invoice by the investor
+     * @param collateral collateral amount associated by the debtor
+     * @param debtor debtor company details
+     * @param creditor creditor company details
+     * @param investor investor company details
+     * @param invoiceStatus status of the invoice
      */
     struct Invoice {
         string id;
@@ -67,14 +67,14 @@ contract InvoiceNFT is ERC721, Ownable {
 
     /**
      * @notice InvoiceParams struct to request the creation of an invoice
-     * @param id: id of the invoice
-     * @param activity: activity field related to the invoice (e.g. "Export of goods")
-     * @param country: country for the taxes
-     * @param dueDate: due
-     * @param amount: amount in token that must be paid byt the debtor (in PrimaToken only)
-     * @param amountToPay: amount to pay of the invoice by the investor
-     * @param debtor: debtor company details
-     * @param creditor: creditor company details
+     * @param id id of the invoice
+     * @param activity activity field related to the invoice (e.g. "Export of goods")
+     * @param country country for the taxes
+     * @param dueDate due
+     * @param amount amount in token that must be paid byt the debtor (in PrimaToken only)
+     * @param amountToPay amount to pay of the invoice by the investor
+     * @param debtor debtor company details
+     * @param creditor creditor company details
      */
     struct InvoiceParams {
         string id;
@@ -89,11 +89,11 @@ contract InvoiceNFT is ERC721, Ownable {
 
     /**
      * @notice Invoice status enum
-     * @dev NEW: new generated invoice
-     * @dev ACCEPTED: invoice has been accepted by the debtor
-     * @dev IN_PROGRESS: invoice has an investor
-     * @dev PAID: invoice is paid by the debtor
-     * @dev OVERDUE: invoice is overdue
+     * @dev NEW new generated invoice
+     * @dev ACCEPTED invoice has been accepted by the debtor
+     * @dev IN_PROGRESS invoice has an investor
+     * @dev PAID invoice is paid by the debtor
+     * @dev OVERDUE invoice is overdue
      */
     enum InvoiceStatus {
         NEW,
@@ -113,9 +113,9 @@ contract InvoiceNFT is ERC721, Ownable {
      * @notice Create a new Invoice as a NFT
      * @dev Only the owner can create a new invoice
      * @dev The invoice is minted to the Creditor
-     * @param to: address of the Creditor
-     * @param invoiceParams: Invoice struct containing the invoice details
-     * @return tokenId: tokenId of the newly created invoice
+     * @param to The address of the Creditor
+     * @param invoiceParams The Invoice struct containing the invoice details
+     * @return tokenId The tokenId of the newly created invoice
      */
     function createInvoice(address to, InvoiceParams calldata invoiceParams) external onlyOwner returns (uint256) {
         _tokenIdCounter++;
@@ -141,8 +141,8 @@ contract InvoiceNFT is ERC721, Ownable {
      * @notice Get the invoice details
      * @dev Only the owner can get the invoice details
      * @dev The invoice must be minted
-     * @param tokenId: tokenId of the invoice
-     * @return invoice: Invoice struct containing the invoice details
+     * @param tokenId The tokenId of the invoice
+     * @return invoice The Invoice struct containing the invoice details
      */
     function getInvoice(uint256 tokenId) external view onlyOwner returns (Invoice memory) {
         _requireOwned(tokenId);
@@ -152,8 +152,8 @@ contract InvoiceNFT is ERC721, Ownable {
     /**
      * @notice Update the collateral of the invoice
      * @dev Only the owner can update the collateral
-     * @param tokenId: tokenId of the invoice
-     * @param collateral: new collateral of the invoice
+     * @param tokenId The tokenId of the invoice
+     * @param collateral The new collateral of the invoice
      */
     function acceptInvoice(uint256 tokenId, uint256 collateral) external onlyOwner {
         _requireOwned(tokenId);
@@ -169,8 +169,8 @@ contract InvoiceNFT is ERC721, Ownable {
     /**
      * @notice Transfer the invoice when an Investor invests
      * @dev Only the owner can transfer the invoice
-     * @param tokenId: tokenId of the invoice
-     * @param investor: Investor struct containing the investor details
+     * @param tokenId The tokenId of the invoice
+     * @param investor The Investor struct containing the investor details
      */
     function investInvoice(uint256 tokenId, Company memory investor) external onlyOwner {
         _requireOwned(tokenId);
@@ -187,8 +187,8 @@ contract InvoiceNFT is ERC721, Ownable {
     /**
      * @notice Pay the invoice
      * @dev Only the Owner can pay the invoice
-     * @param tokenId: tokenId of the invoice
-     * @param success: boolean to indicate if the payment was successful
+     * @param tokenId The tokenId of the invoice
+     * @param success The boolean to indicate if the payment was successful
      */
     function payInvoice(uint256 tokenId, bool success) external onlyOwner {
         _requireOwned(tokenId);

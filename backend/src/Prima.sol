@@ -49,17 +49,23 @@ contract Prima {
     PrimaToken public primaToken;
 
     /**
-     * @notice Error for invalid invoice amount
+     * @notice Error for invalid invoice amount to pay
+     * @param amount The amount of the invoice
+     * @param minimumAmount The minimum amount of the invoice
+     * @param maximumAmount The maximum amount of the invoice
      */
     error Prima_InvalidInvoiceAmountToPay(uint256 amount, uint256 minimumAmount, uint256 maximumAmount);
 
     /**
      * @notice Error for invalid invoice amount
+     * @param amount The amount of the invoice
+     * @param amountToPay The amount to pay of the invoice
      */
     error Prima_InvalidInvoiceAmount(uint256 amount, uint256 amountToPay);
 
     /**
      * @notice Error for invalid due date
+     * @param dueDate The due date of the invoice
      */
     error Prima_InvalidDueDate(uint256 dueDate);
 
@@ -76,6 +82,9 @@ contract Prima {
     /**
      * @notice Constructor
      * @dev Initializes the InvoiceNFT and Collateral contracts as the owner of the contracts
+     * @param invoiceNFTAddress The address of the InvoiceNFT contract
+     * @param collateralAddress The address of the Collateral contract
+     * @param primaTokenAddress The address of the PrimaToken contract
      */
     constructor(address invoiceNFTAddress, address collateralAddress, address primaTokenAddress) {
         invoiceNFT = InvoiceNFT(invoiceNFTAddress);
@@ -86,7 +95,7 @@ contract Prima {
     /**
      * @notice Add collateral to the debtor
      * @dev This function allows the debtor to add collateral to their account
-     * @param collateralAmount: The amount of collateral to add
+     * @param collateralAmount The amount of collateral to add
      */
     function addCollateral(uint256 collateralAmount) external {
         primaToken.transferFrom(msg.sender, address(collateral), collateralAmount);
