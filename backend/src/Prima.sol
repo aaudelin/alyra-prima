@@ -73,7 +73,27 @@ contract Prima {
         view
         virtual
         returns (uint256 minimumAmount, uint256 maximumAmount)
-    {}
+    {
+        if (debtorCreditScore == InvoiceNFT.CreditScore.A) {
+            (, minimumAmount) = (amount*95).tryDiv(100);
+            (, maximumAmount) = (amount*100).tryDiv(100);
+        } else if (debtorCreditScore == InvoiceNFT.CreditScore.B) {
+            (, minimumAmount) = (amount*90).tryDiv(100);
+            (, maximumAmount) = (amount*95).tryDiv(100);
+        } else if (debtorCreditScore == InvoiceNFT.CreditScore.C) {
+            (, minimumAmount) = (amount*85).tryDiv(100);
+            (, maximumAmount) = (amount*90).tryDiv(100);
+        } else if (debtorCreditScore == InvoiceNFT.CreditScore.D) {
+            (, minimumAmount) = (amount*80).tryDiv(100);
+            (, maximumAmount) = (amount*85).tryDiv(100);
+        } else if (debtorCreditScore == InvoiceNFT.CreditScore.E) {
+            (, minimumAmount) = (amount*75).tryDiv(100);
+            (, maximumAmount) = (amount*80).tryDiv(100);
+        } else {
+            (, minimumAmount) = (amount*70).tryDiv(100);
+            (, maximumAmount) = (amount*75).tryDiv(100);
+        }
+    }
 
     function generateInvoice(InvoiceNFT.InvoiceParams calldata invoiceParams) external returns (uint256) {}
 

@@ -110,3 +110,58 @@ contract PrimaCollateralTest is Test {
         vm.stopPrank();
     }
 }
+
+contract PrimaAmountsTest is Test {
+    Prima prima;
+
+    function setUp() public {
+        // Deploy contracts
+        PrimaToken primaToken = new PrimaToken();
+        PrimaScript primaScript = new PrimaScript();
+        primaScript.run(address(primaToken));
+        prima = primaScript.prima();
+    }
+
+    function test_ComputeAmounts_A() public view {
+        (uint256 minimumAmount, uint256 maximumAmount) = prima.computeAmounts(100, InvoiceNFT.CreditScore.A);
+        assertEq(minimumAmount, 95);
+        assertEq(maximumAmount, 100);
+    }
+
+    function test_ComputeAmounts_B() public view {
+        (uint256 minimumAmount, uint256 maximumAmount) = prima.computeAmounts(100, InvoiceNFT.CreditScore.B);
+        assertEq(minimumAmount, 90);
+        assertEq(maximumAmount, 95);
+    }
+
+    function test_ComputeAmounts_C() public view {
+        (uint256 minimumAmount, uint256 maximumAmount) = prima.computeAmounts(100, InvoiceNFT.CreditScore.C);
+        assertEq(minimumAmount, 85);
+        assertEq(maximumAmount, 90);
+    }
+
+    function test_ComputeAmounts_D() public view {
+        (uint256 minimumAmount, uint256 maximumAmount) = prima.computeAmounts(100, InvoiceNFT.CreditScore.D);
+        assertEq(minimumAmount, 80);
+        assertEq(maximumAmount, 85);
+    }
+
+    function test_ComputeAmounts_E() public view {
+        (uint256 minimumAmount, uint256 maximumAmount) = prima.computeAmounts(100, InvoiceNFT.CreditScore.E);
+        assertEq(minimumAmount, 75);
+        assertEq(maximumAmount, 80);
+    }
+
+    function test_ComputeAmounts_F() public view {
+        (uint256 minimumAmount, uint256 maximumAmount) = prima.computeAmounts(100, InvoiceNFT.CreditScore.F);
+        assertEq(minimumAmount, 70);
+        assertEq(maximumAmount, 75);
+    }
+
+    function test_ComputeAmounts_Zero() public view {
+        (uint256 minimumAmount, uint256 maximumAmount) = prima.computeAmounts(0, InvoiceNFT.CreditScore.A);
+        assertEq(minimumAmount, 0);
+        assertEq(maximumAmount, 0);
+    }
+
+}
