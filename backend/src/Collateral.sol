@@ -2,6 +2,7 @@
 pragma solidity 0.8.29;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {PrimaToken} from "./PrimaToken.sol";
 
 /**
  * @title Collateral
@@ -17,20 +18,29 @@ contract Collateral is Ownable {
     mapping(address => uint256) private collateral;
 
     /**
+     * @notice PrimaToken contract
+     */
+    PrimaToken public primaToken;
+
+    /**
      * @notice Constructor
      * @param owner: The owner of the contract
      */
-    constructor(address owner) Ownable(owner) {}
+    constructor(address owner, address primaTokenAddress) Ownable(owner) {
+        primaToken = PrimaToken(primaTokenAddress);
+    }
 
     error Collateral_InsufficientCollateral(address debtor, uint256 collateralAmount, uint256 availableCollateral);
 
     /**
      * @notice Deposit the collateral amount to the address
+     * @dev This function also allows the owner to spend the collateral amount
      * @param to: The address to deposit the collateral to
      * @param collateralAmount: The amount of collateral to deposit
      */
     function deposit(address to, uint256 collateralAmount) external onlyOwner {
         collateral[to] += collateralAmount;
+        primaToken.approve(owner(), collateral[to]);
     }
 
     /**

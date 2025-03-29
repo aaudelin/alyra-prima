@@ -7,6 +7,8 @@ import "../script/Prima.s.sol";
 import {InvoiceNFT} from "../src/InvoiceNFT.sol";
 import {Collateral} from "../src/Collateral.sol";
 import {PrimaToken} from "../src/PrimaToken.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC20Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
 contract PrimaDeploymentTest is Test {
     Prima prima;
@@ -35,24 +37,80 @@ contract PrimaDeploymentTest is Test {
 contract PrimaCollateralTest is Test {
     Prima prima;
     Collateral collateral;
+    PrimaToken primaToken;
+    uint256 primaTokenDecimals;
 
     address debtor = makeAddr("debtor");
-    address creditor = makeAddr("creditor");
-    address investor = makeAddr("investor");
-
-    address private owner = address(this);
 
     function setUp() public {
         // Deploy contracts
-        PrimaToken primaToken = new PrimaToken();
+        primaToken = new PrimaToken();
         PrimaScript primaScript = new PrimaScript();
         primaScript.run(address(primaToken));
         prima = primaScript.prima();
         collateral = prima.collateral();
+        primaTokenDecimals = primaToken.decimals();
+    }
 
-        // Setup test accounts
-        vm.deal(debtor, 100 ether);
-        vm.deal(creditor, 100 ether);
-        vm.deal(investor, 100 ether);
+    function test_AddCollateral_Success() public {
+        primaToken.mint(debtor, 1000000 * 10 ** primaTokenDecimals);
+        uint256 collateralAmount = 100 * 10 ** primaTokenDecimals;
+        vm.startPrank(debtor);
+        primaToken.approve(address(prima), collateralAmount);
+        prima.addCollateral(debtor, collateralAmount);
+        vm.stopPrank();
+
+        vm.startPrank(address(prima));
+        assertEq(primaToken.balanceOf(address(collateral)), collateralAmount);
+        assertEq(collateral.getCollateral(debtor), collateralAmount);
+        assertEq(primaToken.allowance(address(collateral), address(prima)), collateralAmount);
+        vm.stopPrank();
+    }
+
+
+    function test_AddCollateral_SuccessTwoDeposits() public {
+        primaToken.mint(debtor, 1000000 * 10 ** primaTokenDecimals);
+        uint256 collateralAmount = 100 * 10 ** primaTokenDecimals;
+        vm.startPrank(debtor);
+        primaToken.approve(address(prima), collateralAmount);
+        prima.addCollateral(debtor, collateralAmount);
+        primaToken.approve(address(prima), collateralAmount);
+        prima.addCollateral(debtor, collateralAmount);
+        vm.stopPrank();
+
+        vm.startPrank(address(prima));
+        assertEq(primaToken.balanceOf(address(collateral)), 2*collateralAmount);
+        assertEq(collateral.getCollateral(debtor), 2*collateralAmount);
+        assertEq(primaToken.allowance(address(collateral), address(prima)), 2*collateralAmount);
+        vm.stopPrank();
+    }
+
+    function test_AddCollateral_ZeroAllowance() public {
+        vm.startPrank(debtor);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IERC20Errors.ERC20InsufficientAllowance.selector,
+                address(prima),
+                0,
+                100 * 10 ** primaTokenDecimals
+            )
+        );
+        prima.addCollateral(debtor, 100 * 10 ** primaTokenDecimals);
+        vm.stopPrank();
+    }
+
+    function test_AddCollateral_InsufficientAllowance() public {
+        vm.startPrank(debtor);
+        primaToken.approve(address(prima), 10 * 10 ** primaTokenDecimals);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IERC20Errors.ERC20InsufficientAllowance.selector,
+                address(prima),
+                10 * 10 ** primaTokenDecimals,
+                100 * 10 ** primaTokenDecimals
+            )
+        );
+        prima.addCollateral(debtor, 100 * 10 ** primaTokenDecimals);
+        vm.stopPrank();
     }
 }

@@ -19,7 +19,7 @@ contract PrimaScript is Script {
         vm.startBroadcast(msg.sender);
         
         InvoiceNFT invoiceNFT = new InvoiceNFT(msg.sender);
-        Collateral collateral = new Collateral(msg.sender);
+        Collateral collateral = new Collateral(msg.sender, primaTokenAddress);
         console.log("InvoiceNFT deployed at", address(invoiceNFT));
         console.log("Collateral deployed at", address(collateral));
 

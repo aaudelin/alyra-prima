@@ -4,19 +4,23 @@ pragma solidity ^0.8.13;
 import {Test, console} from "forge-std/Test.sol";
 import {Collateral} from "../src/Collateral.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {PrimaToken} from "../src/PrimaToken.sol";
 
 contract CollateralTest is Test {
     Collateral private collateral;
+    PrimaToken private primaToken;
     address private owner = address(this);
     address private debtor = makeAddr("debtor");
 
     function setUp() public {
-        collateral = new Collateral(owner);
+        primaToken = new PrimaToken();
+        collateral = new Collateral(owner, address(primaToken));
     }
 
     function test_Deposit_Success() public {
         collateral.deposit(debtor, 100);
         assertEq(collateral.getCollateral(debtor), 100);
+        assertEq(primaToken.allowance(address(collateral), owner), 100);
     }
 
     function test_Deposit_OnlyOwner() public {
