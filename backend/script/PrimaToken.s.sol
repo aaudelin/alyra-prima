@@ -7,8 +7,6 @@ import {PrimaToken} from "../src/PrimaToken.sol";
 contract PrimaTokenScript is Script {
     PrimaToken public primaToken;
 
-    function setUp() public {}
-
     function run() public {
         vm.startBroadcast(msg.sender);
         

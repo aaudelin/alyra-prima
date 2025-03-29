@@ -9,8 +9,6 @@ import {Collateral} from "../src/Collateral.sol";
 contract PrimaScript is Script {
     Prima public prima;
 
-    function setUp() public {}
-
     function run(address primaTokenAddress) public {
         vm.startBroadcast(msg.sender);
         
