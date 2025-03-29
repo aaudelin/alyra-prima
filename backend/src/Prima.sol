@@ -3,6 +3,7 @@ pragma solidity 0.8.29;
 
 import {InvoiceNFT} from "./InvoiceNFT.sol";
 import {Collateral} from "./Collateral.sol";
+import {PrimaToken} from "./PrimaToken.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
 contract Prima {
@@ -36,12 +37,19 @@ contract Prima {
     Collateral public collateral;
 
     /**
+     * @notice PrimaToken contract
+     * @dev The PrimaToken contract is used to manage the Prima token
+     */
+    PrimaToken public primaToken;
+
+    /**
      * @notice Constructor
      * @dev Initializes the InvoiceNFT and Collateral contracts as the owner of the contracts
      */
-    constructor(address invoiceNFTAddress, address collateralAddress) {
+    constructor(address invoiceNFTAddress, address collateralAddress, address primaTokenAddress) {
         invoiceNFT = InvoiceNFT(invoiceNFTAddress);
         collateral = Collateral(collateralAddress);
+        primaToken = PrimaToken(primaTokenAddress);
     }
 
     error Prima_InvalidAmount(uint256 amount, uint256 minimumAmount, uint256 maximumAmount);

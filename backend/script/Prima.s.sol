@@ -11,7 +11,7 @@ contract PrimaScript is Script {
 
     function setUp() public {}
 
-    function run() public {
+    function run(address primaTokenAddress) public {
         vm.startBroadcast(msg.sender);
         
         InvoiceNFT invoiceNFT = new InvoiceNFT(msg.sender);
@@ -19,7 +19,7 @@ contract PrimaScript is Script {
         console.log("InvoiceNFT deployed at", address(invoiceNFT));
         console.log("Collateral deployed at", address(collateral));
 
-        prima = new Prima(address(invoiceNFT), address(collateral));
+        prima = new Prima(address(invoiceNFT), address(collateral), primaTokenAddress);
         console.log("Prima deployed at", address(prima));
 
         invoiceNFT.transferOwnership(address(prima));
