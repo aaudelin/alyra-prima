@@ -57,7 +57,7 @@ contract PrimaCollateralTest is Test {
         uint256 collateralAmount = 100 * 10 ** primaTokenDecimals;
         vm.startPrank(debtor);
         primaToken.approve(address(prima), collateralAmount);
-        prima.addCollateral(debtor, collateralAmount);
+        prima.addCollateral(collateralAmount);
         vm.stopPrank();
 
         vm.startPrank(address(prima));
@@ -72,9 +72,9 @@ contract PrimaCollateralTest is Test {
         uint256 collateralAmount = 100 * 10 ** primaTokenDecimals;
         vm.startPrank(debtor);
         primaToken.approve(address(prima), collateralAmount);
-        prima.addCollateral(debtor, collateralAmount);
+        prima.addCollateral(collateralAmount);
         primaToken.approve(address(prima), collateralAmount);
-        prima.addCollateral(debtor, collateralAmount);
+        prima.addCollateral(collateralAmount);
         vm.stopPrank();
 
         vm.startPrank(address(prima));
@@ -91,7 +91,7 @@ contract PrimaCollateralTest is Test {
                 IERC20Errors.ERC20InsufficientAllowance.selector, address(prima), 0, 100 * 10 ** primaTokenDecimals
             )
         );
-        prima.addCollateral(debtor, 100 * 10 ** primaTokenDecimals);
+        prima.addCollateral(100 * 10 ** primaTokenDecimals);
         vm.stopPrank();
     }
 
@@ -106,7 +106,7 @@ contract PrimaCollateralTest is Test {
                 100 * 10 ** primaTokenDecimals
             )
         );
-        prima.addCollateral(debtor, 100 * 10 ** primaTokenDecimals);
+        prima.addCollateral(100 * 10 ** primaTokenDecimals);
         vm.stopPrank();
     }
 }

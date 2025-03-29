@@ -58,11 +58,14 @@ contract Prima {
         primaToken = PrimaToken(primaTokenAddress);
     }
 
-    error Prima_InvalidAmount(uint256 amount, uint256 minimumAmount, uint256 maximumAmount);
-
-    function addCollateral(address debtor, uint256 collateralAmount) external {
-        primaToken.transferFrom(debtor, address(collateral), collateralAmount);
-        collateral.deposit(debtor, collateralAmount);
+    /**
+     * @notice Add collateral to the debtor
+     * @dev This function allows the debtor to add collateral to their account
+     * @param collateralAmount: The amount of collateral to add
+     */
+    function addCollateral(uint256 collateralAmount) external {
+        primaToken.transferFrom(msg.sender, address(collateral), collateralAmount);
+        collateral.deposit(msg.sender, collateralAmount);
     }
 
     function computeAmounts(uint256 amount, InvoiceNFT.CreditScore debtorCreditScore)
