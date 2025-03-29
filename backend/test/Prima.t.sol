@@ -67,7 +67,6 @@ contract PrimaCollateralTest is Test {
         vm.stopPrank();
     }
 
-
     function test_AddCollateral_SuccessTwoDeposits() public {
         primaToken.mint(debtor, 1000000 * 10 ** primaTokenDecimals);
         uint256 collateralAmount = 100 * 10 ** primaTokenDecimals;
@@ -79,9 +78,9 @@ contract PrimaCollateralTest is Test {
         vm.stopPrank();
 
         vm.startPrank(address(prima));
-        assertEq(primaToken.balanceOf(address(collateral)), 2*collateralAmount);
-        assertEq(collateral.getCollateral(debtor), 2*collateralAmount);
-        assertEq(primaToken.allowance(address(collateral), address(prima)), 2*collateralAmount);
+        assertEq(primaToken.balanceOf(address(collateral)), 2 * collateralAmount);
+        assertEq(collateral.getCollateral(debtor), 2 * collateralAmount);
+        assertEq(primaToken.allowance(address(collateral), address(prima)), 2 * collateralAmount);
         vm.stopPrank();
     }
 
@@ -89,10 +88,7 @@ contract PrimaCollateralTest is Test {
         vm.startPrank(debtor);
         vm.expectRevert(
             abi.encodeWithSelector(
-                IERC20Errors.ERC20InsufficientAllowance.selector,
-                address(prima),
-                0,
-                100 * 10 ** primaTokenDecimals
+                IERC20Errors.ERC20InsufficientAllowance.selector, address(prima), 0, 100 * 10 ** primaTokenDecimals
             )
         );
         prima.addCollateral(debtor, 100 * 10 ** primaTokenDecimals);

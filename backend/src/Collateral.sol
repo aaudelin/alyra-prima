@@ -49,7 +49,10 @@ contract Collateral is Ownable {
      * @param collateralAmount: The amount of collateral to withdraw
      */
     function withdraw(address from, uint256 collateralAmount) external onlyOwner {
-        require(collateral[from] >= collateralAmount, Collateral_InsufficientCollateral(from, collateralAmount, collateral[from]));
+        require(
+            collateral[from] >= collateralAmount,
+            Collateral_InsufficientCollateral(from, collateralAmount, collateral[from])
+        );
         collateral[from] -= collateralAmount;
     }
 

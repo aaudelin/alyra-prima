@@ -4,6 +4,7 @@ pragma solidity 0.8.29;
 import {Test} from "forge-std/Test.sol";
 import {PrimaToken} from "../src/PrimaToken.sol";
 import {PrimaTokenScript} from "../script/PrimaToken.s.sol";
+
 contract PrimaTokenTest is Test {
     PrimaToken primaToken;
 
@@ -16,7 +17,7 @@ contract PrimaTokenTest is Test {
         assertEq(primaToken.symbol(), "PGT");
         assertEq(primaToken.decimals(), 18);
     }
-    
+
     function test_Deployment_Script() public {
         PrimaTokenScript primaTokenScript = new PrimaTokenScript();
         primaTokenScript.run();

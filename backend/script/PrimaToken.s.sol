@@ -14,7 +14,7 @@ contract PrimaTokenScript is Script {
 
     function run() public {
         vm.startBroadcast(msg.sender);
-        
+
         primaToken = new PrimaToken();
         console.log("PrimaToken deployed at", address(primaToken));
 
