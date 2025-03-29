@@ -163,5 +163,4 @@ contract PrimaAmountsTest is Test {
         assertEq(minimumAmount, 0);
         assertEq(maximumAmount, 0);
     }
-
 }

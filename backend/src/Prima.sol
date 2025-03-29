@@ -51,17 +51,13 @@ contract Prima {
     /**
      * @notice Error for invalid invoice amount
      */
-    error Prima_InvalidInvoiceAmountToPay(
-        uint256 amount,
-        uint256 minimumAmount,
-        uint256 maximumAmount
-    );
+    error Prima_InvalidInvoiceAmountToPay(uint256 amount, uint256 minimumAmount, uint256 maximumAmount);
 
     /**
      * @notice Error for invalid invoice amount
      */
     error Prima_InvalidInvoiceAmount(uint256 amount, uint256 amountToPay);
-    
+
     /**
      * @notice Error for invalid due date
      */
@@ -81,11 +77,7 @@ contract Prima {
      * @notice Constructor
      * @dev Initializes the InvoiceNFT and Collateral contracts as the owner of the contracts
      */
-    constructor(
-        address invoiceNFTAddress,
-        address collateralAddress,
-        address primaTokenAddress
-    ) {
+    constructor(address invoiceNFTAddress, address collateralAddress, address primaTokenAddress) {
         invoiceNFT = InvoiceNFT(invoiceNFTAddress);
         collateral = Collateral(collateralAddress);
         primaToken = PrimaToken(primaTokenAddress);
@@ -97,11 +89,7 @@ contract Prima {
      * @param collateralAmount: The amount of collateral to add
      */
     function addCollateral(uint256 collateralAmount) external {
-        primaToken.transferFrom(
-            msg.sender,
-            address(collateral),
-            collateralAmount
-        );
+        primaToken.transferFrom(msg.sender, address(collateral), collateralAmount);
         collateral.deposit(msg.sender, collateralAmount);
     }
 
@@ -114,10 +102,7 @@ contract Prima {
      * @return minimumAmount The minimum amount of the invoice
      * @return maximumAmount The maximum amount of the invoice
      */
-    function computeAmounts(
-        uint256 amount,
-        InvoiceNFT.CreditScore debtorCreditScore
-    )
+    function computeAmounts(uint256 amount, InvoiceNFT.CreditScore debtorCreditScore)
         public
         view
         virtual
@@ -144,63 +129,36 @@ contract Prima {
         }
     }
 
-    function generateInvoice(
-        InvoiceNFT.InvoiceParams calldata invoiceParams
-    ) external returns (uint256) {
+    function generateInvoice(InvoiceNFT.InvoiceParams calldata invoiceParams) external returns (uint256) {
         require(bytes(invoiceParams.id).length > 0, Prima_InvalidInvoiceId());
-        require(
-            invoiceParams.dueDate > block.timestamp,
-            Prima_InvalidDueDate(invoiceParams.dueDate)
-        );
+        require(invoiceParams.dueDate > block.timestamp, Prima_InvalidDueDate(invoiceParams.dueDate));
         require(
             invoiceParams.amount > invoiceParams.amountToPay,
             Prima_InvalidInvoiceAmount(invoiceParams.amount, invoiceParams.amountToPay)
         );
+        require(invoiceParams.debtor.name != address(0), Prima_InvalidZeroAddress());
+        require(invoiceParams.creditor.name != address(0), Prima_InvalidZeroAddress());
+        (uint256 minimumAmount, uint256 maximumAmount) =
+            computeAmounts(invoiceParams.amount, invoiceParams.debtor.creditScore);
         require(
-            invoiceParams.debtor.name != address(0), Prima_InvalidZeroAddress()
-        );
-        require(
-            invoiceParams.creditor.name != address(0), Prima_InvalidZeroAddress()
-        );
-        (uint256 minimumAmount, uint256 maximumAmount) = computeAmounts(
-            invoiceParams.amount,
-            invoiceParams.debtor.creditScore
-        );
-        require(
-            invoiceParams.amountToPay > 0 &&
-                invoiceParams.amountToPay >= minimumAmount &&
-                invoiceParams.amountToPay <= maximumAmount,
-            Prima_InvalidInvoiceAmountToPay(
-                invoiceParams.amountToPay,
-                minimumAmount,
-                maximumAmount
-            )
+            invoiceParams.amountToPay > 0 && invoiceParams.amountToPay >= minimumAmount
+                && invoiceParams.amountToPay <= maximumAmount,
+            Prima_InvalidInvoiceAmountToPay(invoiceParams.amountToPay, minimumAmount, maximumAmount)
         );
         return invoiceNFT.createInvoice(invoiceParams.creditor.name, invoiceParams);
     }
 
-    function acceptInvoice(
-        uint256 tokenId,
-        uint256 collateralAmount
-    ) external {}
+    function acceptInvoice(uint256 tokenId, uint256 collateralAmount) external {}
 
     function investInvoice(uint256 tokenId) external {}
 
     function payInvoice(uint256 tokenId) external {}
 
-    function getInvoice(
-        uint256 tokenId
-    ) external view returns (InvoiceNFT.Invoice memory) {}
+    function getInvoice(uint256 tokenId) external view returns (InvoiceNFT.Invoice memory) {}
 
-    function getDebtorInvoices(
-        address debtor
-    ) external view returns (uint256[] memory) {}
+    function getDebtorInvoices(address debtor) external view returns (uint256[] memory) {}
 
-    function getCreditorInvoices(
-        address creditor
-    ) external view returns (uint256[] memory) {}
+    function getCreditorInvoices(address creditor) external view returns (uint256[] memory) {}
 
-    function getInvestorInvoices(
-        address investor
-    ) external view returns (uint256[] memory) {}
+    function getInvestorInvoices(address investor) external view returns (uint256[] memory) {}
 }
