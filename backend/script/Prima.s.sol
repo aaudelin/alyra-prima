@@ -6,6 +6,12 @@ import {Prima} from "../src/Prima.sol";
 import {InvoiceNFT} from "../src/InvoiceNFT.sol";
 import {Collateral} from "../src/Collateral.sol";
 
+/**
+ * @title PrimaScript
+ * @notice Script for deploying the Prima contract
+ * @dev This script also deploys the InvoiceNFT and Collateral contracts
+ * @author @aaudelin
+ */
 contract PrimaScript is Script {
     Prima public prima;
 

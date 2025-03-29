@@ -4,6 +4,11 @@ pragma solidity ^0.8.13;
 import {Script, console} from "forge-std/Script.sol";
 import {PrimaToken} from "../src/PrimaToken.sol";
 
+/**
+ * @title PrimaTokenScript
+ * @notice Script for deploying the PrimaToken contract
+ * @author @aaudelin
+ */
 contract PrimaTokenScript is Script {
     PrimaToken public primaToken;
 

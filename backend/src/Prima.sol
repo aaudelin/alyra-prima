@@ -6,6 +6,12 @@ import {Collateral} from "./Collateral.sol";
 import {PrimaToken} from "./PrimaToken.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
+/**
+ * @title Prima
+ * @notice Prima is the main contract that manages the invoice financing system
+ * @dev This contract is responsible for managing the interaction between InvoiceNFT, Collateral and PrimaToken contracts
+ * @author @aaudelin
+ */
 contract Prima {
     using Math for uint256;
 

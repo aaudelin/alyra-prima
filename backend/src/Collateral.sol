@@ -8,6 +8,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
  * @notice Collateral contract for the Prima project, this account is responsible for managing the collateral of Debtors
  * @dev This contract receives some ERC20 and updates the balances
  * @dev This contract is owned by the Prima contract
+ * @author @aaudelin
  */
 contract Collateral is Ownable {
     /**

@@ -8,6 +8,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  * @notice ERC20 token for the Prima project
  * @dev This is a simple ERC20 token implementation for the Prima project.
  * @dev This token is used only for testing purposes.
+ * @author @aaudelin
  */
 contract PrimaToken is ERC20 {
     constructor() ERC20("Prima", "PGT") {}
