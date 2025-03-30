@@ -118,23 +118,23 @@ contract Prima {
         returns (uint256 minimumAmount, uint256 maximumAmount)
     {
         if (debtorCreditScore == InvoiceNFT.CreditScore.A) {
-            (, minimumAmount) = (amount * 95).tryDiv(100);
-            (, maximumAmount) = (amount * 100).tryDiv(100);
+            minimumAmount = amount.mulDiv(95, 100);
+            maximumAmount = amount;
         } else if (debtorCreditScore == InvoiceNFT.CreditScore.B) {
-            (, minimumAmount) = (amount * 90).tryDiv(100);
-            (, maximumAmount) = (amount * 95).tryDiv(100);
+            minimumAmount = amount.mulDiv(90, 100);
+            maximumAmount = amount.mulDiv(95, 100);
         } else if (debtorCreditScore == InvoiceNFT.CreditScore.C) {
-            (, minimumAmount) = (amount * 85).tryDiv(100);
-            (, maximumAmount) = (amount * 90).tryDiv(100);
+            minimumAmount = amount.mulDiv(85, 100);
+            maximumAmount = amount.mulDiv(90, 100);
         } else if (debtorCreditScore == InvoiceNFT.CreditScore.D) {
-            (, minimumAmount) = (amount * 80).tryDiv(100);
-            (, maximumAmount) = (amount * 85).tryDiv(100);
+            minimumAmount = amount.mulDiv(80, 100);
+            maximumAmount = amount.mulDiv(85, 100);
         } else if (debtorCreditScore == InvoiceNFT.CreditScore.E) {
-            (, minimumAmount) = (amount * 75).tryDiv(100);
-            (, maximumAmount) = (amount * 80).tryDiv(100);
+            minimumAmount = amount.mulDiv(75, 100);
+            maximumAmount = amount.mulDiv(80, 100);
         } else {
-            (, minimumAmount) = (amount * 70).tryDiv(100);
-            (, maximumAmount) = (amount * 75).tryDiv(100);
+            minimumAmount = amount.mulDiv(70, 100);
+            maximumAmount = amount.mulDiv(75, 100);
         }
     }
 
@@ -148,7 +148,7 @@ contract Prima {
         require(bytes(invoiceParams.id).length > 0, Prima_InvalidInvoiceId());
         require(invoiceParams.dueDate > block.timestamp, Prima_InvalidDueDate(invoiceParams.dueDate));
         require(
-            invoiceParams.amount > invoiceParams.amountToPay,
+            invoiceParams.amount >= invoiceParams.amountToPay,
             Prima_InvalidInvoiceAmount(invoiceParams.amount, invoiceParams.amountToPay)
         );
         require(invoiceParams.debtor.name != address(0), Prima_InvalidZeroAddress());
