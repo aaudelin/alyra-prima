@@ -416,7 +416,7 @@ contract PrimaGenerateInvoiceTest is Test {
 
     function test_GenerateInvoice_Revert_InvalidZeroAddress_Creditor() public {
         vm.startPrank(creditor);
-        vm.expectRevert(abi.encodeWithSelector(Prima.Prima_InvalidZeroAddress.selector));
+        vm.expectRevert(abi.encodeWithSelector(Prima.Prima_InvalidSender.selector, creditor));
         prima.generateInvoice(
             InvoiceNFT.InvoiceParams({
                 id: "1",
@@ -550,7 +550,7 @@ contract PrimaAcceptInvoiceTest is Test {
     function test_AcceptInvoice_Revert_InvalidDebtor() public {
         address debtor2 = makeAddr("debtor2");
         vm.startPrank(debtor2);
-        vm.expectRevert(abi.encodeWithSelector(Prima.Prima_InvalidDebtor.selector, 1, debtor2));
+        vm.expectRevert(abi.encodeWithSelector(Prima.Prima_InvalidSender.selector, debtor2));
         prima.acceptInvoice(1, 100);
         vm.stopPrank();
     }
@@ -655,6 +655,20 @@ contract PrimaInvestInvoiceTest is Test {
         assertEq(primaToken.balanceOf(creditor), invoice.amountToPay);
     }
 
+    function test_Success_Emit() public {
+        vm.startPrank(debtor);
+        prima.acceptInvoice(1, 0);
+        vm.stopPrank();
+
+        vm.startPrank(investor);
+        primaToken.mint(investor, 1000000);
+        primaToken.approve(address(prima), invoice.amountToPay);
+        vm.expectEmit(address(invoiceNFT));
+        emit InvoiceNFT.InvoiceNFT_StatusChanged(1, InvoiceNFT.InvoiceStatus.IN_PROGRESS);
+        prima.investInvoice(1, investorCompany);
+        vm.stopPrank();
+    }
+
     function test_InvestInvoice_Revert_AlreadyInvested() public {
         InvoiceNFT.Company memory investorCompany2 =
             InvoiceNFT.Company({name: makeAddr("investor2"), creditScore: InvoiceNFT.CreditScore.A});
@@ -677,6 +691,312 @@ contract PrimaInvestInvoiceTest is Test {
             )
         );
         prima.investInvoice(1, investorCompany2);
+        vm.stopPrank();
+    }
+
+    function test_InvestInvoice_Revert_InvalidSender() public {
+        address invalidSender = makeAddr("invalidSender");
+        vm.startPrank(invalidSender);
+        vm.expectRevert(abi.encodeWithSelector(Prima.Prima_InvalidSender.selector, invalidSender));
+        prima.investInvoice(1, investorCompany);
+        vm.stopPrank();
+    }
+}
+
+contract PrimaPayInvoiceTest is Test {
+    Prima prima;
+    PrimaScript primaScript;
+    InvoiceNFT invoiceNFT;
+    PrimaToken primaToken;
+    Collateral collateral;
+    InvoiceNFT.Invoice invoice;
+    InvoiceNFT.InvoiceParams invoiceParams;
+
+    address debtor = makeAddr("debtor");
+    address creditor = makeAddr("creditor");
+    address investor = makeAddr("investor");
+
+    function setUp() public {
+        // Deploy contracts
+        primaToken = new PrimaToken();
+        primaScript = new PrimaScript();
+        primaScript.run(address(primaToken));
+        prima = primaScript.prima();
+        invoiceNFT = prima.invoiceNFT();
+        collateral = prima.collateral();
+
+        vm.startPrank(creditor);
+        invoiceParams = InvoiceNFT.InvoiceParams({
+            id: "1",
+            activity: "Export of goods",
+            country: "Italy",
+            dueDate: block.timestamp + 1000,
+            amount: 100,
+            amountToPay: 98,
+            debtor: InvoiceNFT.Company({name: debtor, creditScore: InvoiceNFT.CreditScore.A}),
+            creditor: InvoiceNFT.Company({name: creditor, creditScore: InvoiceNFT.CreditScore.A})
+        });
+        prima.generateInvoice(invoiceParams);
+        vm.stopPrank();
+
+        vm.startPrank(debtor);
+        primaToken.mint(debtor, 1000000);
+        primaToken.approve(address(prima), 20);
+        prima.addCollateral(20);
+        prima.acceptInvoice(1, 20);
+        vm.stopPrank();
+
+        vm.startPrank(investor);
+        primaToken.mint(investor, 1000000);
+        primaToken.approve(address(prima), 98);
+        prima.investInvoice(1, InvoiceNFT.Company({name: investor, creditScore: InvoiceNFT.CreditScore.A}));
+        vm.stopPrank();
+
+        vm.startPrank(address(prima));
+        invoice = invoiceNFT.getInvoice(1);
+        vm.stopPrank();
+    }
+
+    function test_PayInvoice_Success() public {
+        uint256 initialInvestorBalance = primaToken.balanceOf(investor);
+        uint256 initialDebtorBalance = primaToken.balanceOf(debtor);
+
+        vm.startPrank(debtor);
+        primaToken.approve(address(prima), invoice.amount);
+        prima.payInvoice(1);
+        vm.stopPrank();
+
+        vm.startPrank(address(prima));
+        InvoiceNFT.Invoice memory getInvoice = invoiceNFT.getInvoice(1);
+        assertEq(uint256(getInvoice.invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.PAID));
+        assertEq(primaToken.balanceOf(debtor), initialDebtorBalance - invoice.amount);
+        assertEq(primaToken.balanceOf(investor), initialInvestorBalance + invoice.amount);
+        vm.stopPrank();
+    }
+
+    function test_PayInvoice_Revert_WrongStatus() public {
+        vm.startPrank(debtor);
+        primaToken.approve(address(prima), invoice.amount);
+        prima.payInvoice(1);
+        vm.stopPrank();
+
+        vm.startPrank(debtor);
+        primaToken.approve(address(prima), invoice.amount);
+        vm.expectRevert(
+            abi.encodeWithSelector(InvoiceNFT.InvoiceNFT_WrongInvoiceStatus.selector, 1, InvoiceNFT.InvoiceStatus.PAID)
+        );
+        prima.payInvoice(1);
+        vm.stopPrank();
+    }
+
+    function test_PayInvoice_Revert_WrongDebtor() public {
+        vm.startPrank(investor);
+        vm.expectRevert(abi.encodeWithSelector(Prima.Prima_InvalidSender.selector, investor));
+        prima.payInvoice(1);
+        vm.stopPrank();
+    }
+
+    function test_Success_Emit() public {
+        vm.startPrank(debtor);
+        primaToken.approve(address(prima), invoice.amount);
+        vm.expectEmit();
+        emit InvoiceNFT.InvoiceNFT_StatusChanged(1, InvoiceNFT.InvoiceStatus.PAID);
+        prima.payInvoice(1);
+        vm.stopPrank();
+    }
+
+    function test_PayInvoice_Success_UseCollateral() public {
+        uint256 initialDebtorBalance = primaToken.balanceOf(debtor);
+        uint256 initialInvestorBalance = primaToken.balanceOf(investor);
+        uint256 initialCollateralBalance = primaToken.balanceOf(address(collateral));
+        vm.startPrank(debtor);
+        primaToken.transfer(address(prima), initialDebtorBalance);
+        prima.payInvoice(1);
+        vm.stopPrank();
+
+        vm.startPrank(address(prima));
+        InvoiceNFT.Invoice memory getInvoice = invoiceNFT.getInvoice(1);
+        assertEq(uint256(getInvoice.invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.OVERDUE));
+        assertEq(primaToken.balanceOf(investor), initialInvestorBalance + invoice.collateral);
+        assertEq(primaToken.balanceOf(address(collateral)), initialCollateralBalance - invoice.collateral);
+        vm.stopPrank();
+
+        vm.startPrank(address(prima));
+        assertEq(collateral.getCollateral(debtor), 0);
+        vm.stopPrank();
+    }
+}
+
+contract PrimaGetInvoicesTest is Test {
+    Prima prima;
+    PrimaScript primaScript;
+    PrimaToken primaToken;
+    address creditor = makeAddr("creditor");
+    address debtor = makeAddr("debtor");
+    address investor = makeAddr("investor");
+
+    function setUp() public {
+        // Deploy contracts
+        primaToken = new PrimaToken();
+        primaScript = new PrimaScript();
+        primaScript.run(address(primaToken));
+        prima = primaScript.prima();
+    }
+
+    function test_GetInvoice_Success() public {
+        vm.startPrank(creditor);
+        prima.generateInvoice(
+            InvoiceNFT.InvoiceParams({
+                id: "1",
+                activity: "Export of goods",
+                country: "Italy",
+                dueDate: block.timestamp + 1000,
+                amount: 100,
+                amountToPay: 98,
+                debtor: InvoiceNFT.Company({name: debtor, creditScore: InvoiceNFT.CreditScore.A}),
+                creditor: InvoiceNFT.Company({name: creditor, creditScore: InvoiceNFT.CreditScore.A})
+            })
+        );
+        vm.stopPrank();
+
+        vm.startPrank(creditor);
+        InvoiceNFT.Invoice memory invoice = prima.getInvoice(1);
+        assertEq(invoice.id, "1");
+        vm.stopPrank();
+    }
+
+    function test_GetInvoice_Success_Debtor() public {
+        vm.startPrank(creditor);
+        prima.generateInvoice(
+            InvoiceNFT.InvoiceParams({
+                id: "1",
+                activity: "Export of goods",
+                country: "Italy",
+                dueDate: block.timestamp + 1000,
+                amount: 100,
+                amountToPay: 98,
+                debtor: InvoiceNFT.Company({name: debtor, creditScore: InvoiceNFT.CreditScore.A}),
+                creditor: InvoiceNFT.Company({name: creditor, creditScore: InvoiceNFT.CreditScore.A})
+            })
+        );
+        vm.stopPrank();
+
+        vm.startPrank(debtor);
+        InvoiceNFT.Invoice memory invoice = prima.getInvoice(1);
+        assertEq(invoice.id, "1");
+        vm.stopPrank();
+    }
+
+    function test_GetInvoice_Success_Investor() public {
+        vm.startPrank(creditor);
+        prima.generateInvoice(
+            InvoiceNFT.InvoiceParams({
+                id: "1",
+                activity: "Export of goods",
+                country: "Italy",
+                dueDate: block.timestamp + 1000,
+                amount: 100,
+                amountToPay: 98,
+                debtor: InvoiceNFT.Company({name: debtor, creditScore: InvoiceNFT.CreditScore.A}),
+                creditor: InvoiceNFT.Company({name: creditor, creditScore: InvoiceNFT.CreditScore.A})
+            })
+        );
+        vm.stopPrank();
+
+        vm.startPrank(debtor);
+        primaToken.mint(debtor, 1000000);
+        primaToken.approve(address(prima), 30);
+        prima.addCollateral(30);
+        prima.acceptInvoice(1, 30);
+        vm.stopPrank();
+
+        vm.startPrank(investor);
+        primaToken.mint(investor, 1000000);
+        primaToken.approve(address(prima), 98);
+        prima.investInvoice(1, InvoiceNFT.Company({name: investor, creditScore: InvoiceNFT.CreditScore.A}));
+        InvoiceNFT.Invoice memory invoice = prima.getInvoice(1);
+        assertEq(invoice.id, "1");
+        vm.stopPrank();
+    }
+
+    function test_GetInvoices_Success() public {
+        vm.startPrank(creditor);
+        prima.generateInvoice(
+            InvoiceNFT.InvoiceParams({
+                id: "1",
+                activity: "Export of goods",
+                country: "Italy",
+                dueDate: block.timestamp + 1000,
+                amount: 100,
+                amountToPay: 98,
+                debtor: InvoiceNFT.Company({name: debtor, creditScore: InvoiceNFT.CreditScore.A}),
+                creditor: InvoiceNFT.Company({name: creditor, creditScore: InvoiceNFT.CreditScore.A})
+            })
+        );
+        assertEq(prima.getCreditorInvoices().length, 1);
+        assertEq(prima.getCreditorInvoices()[0], 1);
+        vm.stopPrank();
+
+        vm.startPrank(debtor);
+        primaToken.mint(debtor, 1000000);
+        primaToken.approve(address(prima), 30);
+        prima.addCollateral(30);
+        prima.acceptInvoice(1, 30);
+        assertEq(prima.getDebtorInvoices().length, 1);
+        assertEq(prima.getDebtorInvoices()[0], 1);
+        vm.stopPrank();
+
+        vm.startPrank(investor);
+        primaToken.mint(investor, 1000000);
+        primaToken.approve(address(prima), 98);
+        prima.investInvoice(1, InvoiceNFT.Company({name: investor, creditScore: InvoiceNFT.CreditScore.A}));
+        assertEq(prima.getInvestorInvoices().length, 1);
+        assertEq(prima.getInvestorInvoices()[0], 1);
+        vm.stopPrank();
+    }
+
+    function test_GetInvoice_Revert_InvalidSender() public {
+        vm.startPrank(creditor);
+        prima.generateInvoice(
+            InvoiceNFT.InvoiceParams({
+                id: "1",
+                activity: "Export of goods",
+                country: "Italy",
+                dueDate: block.timestamp + 1000,
+                amount: 100,
+                amountToPay: 98,
+                debtor: InvoiceNFT.Company({name: debtor, creditScore: InvoiceNFT.CreditScore.A}),
+                creditor: InvoiceNFT.Company({name: creditor, creditScore: InvoiceNFT.CreditScore.A})
+            })
+        );
+        assertEq(prima.getCreditorInvoices().length, 1);
+        assertEq(prima.getCreditorInvoices()[0], 1);
+        vm.stopPrank();
+
+        vm.startPrank(investor);
+        vm.expectRevert(abi.encodeWithSelector(Prima.Prima_InvalidSender.selector, investor));
+        prima.getInvoice(1);
+        vm.stopPrank();
+    }
+
+    function test_GetDebtorInvoices_Empty() public {
+        vm.startPrank(debtor);
+        uint256[] memory invoiceIds = prima.getDebtorInvoices();
+        assertEq(invoiceIds.length, 0);
+        vm.stopPrank();
+    }
+
+    function test_GetCreditorInvoices_Empty() public {
+        vm.startPrank(creditor);
+        uint256[] memory invoiceIds = prima.getCreditorInvoices();
+        assertEq(invoiceIds.length, 0);
+        vm.stopPrank();
+    }
+
+    function test_GetInvestorInvoices_Empty() public {
+        vm.startPrank(investor);
+        uint256[] memory invoiceIds = prima.getInvestorInvoices();
+        assertEq(invoiceIds.length, 0);
         vm.stopPrank();
     }
 }
