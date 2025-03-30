@@ -85,11 +85,10 @@ contract Prima {
     error Prima_InvalidInvoiceId();
 
     /**
-     * @notice Error for invalid debtor
-     * @param tokenId The token id of the invoice
-     * @param debtor The address of the debtor
+     * @notice Error for invalid sender
+     * @param sender The address of the sender
      */
-    error Prima_InvalidDebtor(uint256 tokenId, address debtor);
+    error Prima_InvalidSender(address sender);
 
     /**
      * @notice Error for invalid collateral amount
@@ -172,7 +171,7 @@ contract Prima {
             Prima_InvalidInvoiceAmount(invoiceParams.amount, invoiceParams.amountToPay)
         );
         require(invoiceParams.debtor.name != address(0), Prima_InvalidZeroAddress());
-        require(invoiceParams.creditor.name != address(0), Prima_InvalidZeroAddress());
+        require(invoiceParams.creditor.name == msg.sender, Prima_InvalidSender(msg.sender));
         (uint256 minimumAmount, uint256 maximumAmount) =
             computeAmounts(invoiceParams.amount, invoiceParams.debtor.creditScore);
         require(
@@ -180,7 +179,11 @@ contract Prima {
                 && invoiceParams.amountToPay <= maximumAmount,
             Prima_InvalidInvoiceAmountToPay(invoiceParams.amountToPay, minimumAmount, maximumAmount)
         );
-        return invoiceNFT.createInvoice(invoiceParams.creditor.name, invoiceParams);
+
+        uint256 tokenId = invoiceNFT.createInvoice(invoiceParams.creditor.name, invoiceParams);
+        _debtorInvoices[invoiceParams.debtor.name].push(tokenId);
+        _creditorInvoices[invoiceParams.creditor.name].push(tokenId);
+        return tokenId;
     }
 
     /**
@@ -193,15 +196,15 @@ contract Prima {
      */
     function acceptInvoice(uint256 tokenId, uint256 collateralAmount) external {
         InvoiceNFT.Invoice memory invoice = invoiceNFT.getInvoice(tokenId);
-        require(invoice.debtor.name == msg.sender, Prima_InvalidDebtor(tokenId, msg.sender));
+        require(invoice.debtor.name == msg.sender, Prima_InvalidSender(msg.sender));
 
         uint256 totalCollateral = collateral.getCollateral(msg.sender);
         require(
             _activeCollateral[msg.sender] + collateralAmount <= totalCollateral,
             Prima_InvalidCollateralAmount(collateralAmount, _activeCollateral[msg.sender], totalCollateral)
         );
-        _activeCollateral[msg.sender] += collateralAmount;
         invoiceNFT.acceptInvoice(tokenId, collateralAmount);
+        _activeCollateral[msg.sender] += collateralAmount;
     }
 
     /**
@@ -213,17 +216,74 @@ contract Prima {
      */
     function investInvoice(uint256 tokenId, InvoiceNFT.Company memory investor) external {
         InvoiceNFT.Invoice memory invoice = invoiceNFT.getInvoice(tokenId);
+        require(investor.name == msg.sender, Prima_InvalidSender(msg.sender));
         primaToken.transferFrom(msg.sender, address(invoice.creditor.name), invoice.amountToPay);
         invoiceNFT.investInvoice(tokenId, investor);
+        _investorInvoices[msg.sender].push(tokenId);
     }
 
-    function payInvoice(uint256 tokenId) external {}
+    /**
+     * @notice Pay an invoice
+     * @dev This function allows the debtor to pay an invoice
+     * @dev This function uses the Collateral contract to manage the collateral
+     * @dev If the user has enough balance, the invoice is paid. Otherwise, the collateral is used to pay the invoice
+     * @param tokenId The token id of the invoice
+     */
+    function payInvoice(uint256 tokenId) external {
+        InvoiceNFT.Invoice memory invoice = invoiceNFT.getInvoice(tokenId);
+        require(invoice.debtor.name == msg.sender, Prima_InvalidSender(msg.sender));
+        if (primaToken.balanceOf(msg.sender) < invoice.amount) {
+            primaToken.transferFrom(address(collateral), address(invoice.investor.name), invoice.collateral);
+            collateral.withdraw(msg.sender, invoice.collateral);
+            invoiceNFT.payInvoice(tokenId, false);
+        } else {
+            primaToken.transferFrom(msg.sender, address(invoice.investor.name), invoice.amount);
+            invoiceNFT.payInvoice(tokenId, true);
+        }
+        _activeCollateral[msg.sender] -= invoice.collateral;
+    }
 
-    function getInvoice(uint256 tokenId) external view returns (InvoiceNFT.Invoice memory) {}
+    /**
+     * @notice Get an invoice
+     * @dev This function allows the user to get an invoice
+     * @dev This function checks if the user is the owner of the invoice, the investor, the creditor or the debtor
+     * @param tokenId The token id of the invoice
+     * @return invoice The invoice
+     */
+    function getInvoice(uint256 tokenId) external view returns (InvoiceNFT.Invoice memory) {
+        InvoiceNFT.Invoice memory invoice = invoiceNFT.getInvoice(tokenId);
+        require(
+            invoiceNFT.ownerOf(tokenId) == msg.sender || invoice.investor.name == msg.sender
+                || invoice.creditor.name == msg.sender || invoice.debtor.name == msg.sender,
+            Prima_InvalidSender(msg.sender)
+        );
+        return invoice;
+    }
 
-    function getDebtorInvoices(address debtor) external view returns (uint256[] memory) {}
+    /**
+     * @notice Get the invoices of the debtor
+     * @dev This function allows the user to get the invoices of the debtor
+     * @return invoiceIds The invoices IDs as the debtor
+     */
+    function getDebtorInvoices() external view returns (uint256[] memory invoiceIds) {
+        return _debtorInvoices[msg.sender];
+    }
 
-    function getCreditorInvoices(address creditor) external view returns (uint256[] memory) {}
+    /**
+     * @notice Get the invoices of the creditor
+     * @dev This function allows the user to get the invoices of the creditor
+     * @return invoiceIds The invoices IDs as the creditor
+     */
+    function getCreditorInvoices() external view returns (uint256[] memory invoiceIds) {
+        return _creditorInvoices[msg.sender];
+    }
 
-    function getInvestorInvoices(address investor) external view returns (uint256[] memory) {}
+    /**
+     * @notice Get the invoices of the investor
+     * @dev This function allows the user to get the invoices of the investor
+     * @return invoiceIds The invoices IDs as the investor
+     */
+    function getInvestorInvoices() external view returns (uint256[] memory invoiceIds) {
+        return _investorInvoices[msg.sender];
+    }
 }
