@@ -31,6 +31,11 @@ contract Prima {
     mapping(address => uint256[]) private _investorInvoices;
 
     /**
+     * @notice Mapping of debtor addresses to their active collateral
+     */
+    mapping(address => uint256) private _activeCollateral;
+
+    /**
      * @notice InvoiceNFT contract
      * @dev The InvoiceNFT contract is used to create and manage invoices
      */
@@ -78,6 +83,21 @@ contract Prima {
      * @notice Error for invalid invoice id
      */
     error Prima_InvalidInvoiceId();
+
+    /**
+     * @notice Error for invalid debtor
+     * @param tokenId The token id of the invoice
+     * @param debtor The address of the debtor
+     */
+    error Prima_InvalidDebtor(uint256 tokenId, address debtor);
+
+    /**
+     * @notice Error for invalid collateral amount
+     * @param collateralAmount The amount of collateral
+     * @param activeCollateral The active collateral of the debtor
+     * @param totalCollateral The total collateral of the debtor
+     */
+    error Prima_InvalidCollateralAmount(uint256 collateralAmount, uint256 activeCollateral, uint256 totalCollateral);
 
     /**
      * @notice Constructor
@@ -163,7 +183,15 @@ contract Prima {
         return invoiceNFT.createInvoice(invoiceParams.creditor.name, invoiceParams);
     }
 
-    function acceptInvoice(uint256 tokenId, uint256 collateralAmount) external {}
+    function acceptInvoice(uint256 tokenId, uint256 collateralAmount) external {
+        InvoiceNFT.Invoice memory invoice = invoiceNFT.getInvoice(tokenId);
+        require(invoice.debtor.name == msg.sender, Prima_InvalidDebtor(tokenId, msg.sender));
+
+        uint256 totalCollateral = collateral.getCollateral(msg.sender);
+        require(_activeCollateral[msg.sender] + collateralAmount <= totalCollateral, Prima_InvalidCollateralAmount(collateralAmount, _activeCollateral[msg.sender], totalCollateral));
+        _activeCollateral[msg.sender] += collateralAmount;
+        invoiceNFT.acceptInvoice(tokenId, collateralAmount);
+    }
 
     function investInvoice(uint256 tokenId) external {}
 

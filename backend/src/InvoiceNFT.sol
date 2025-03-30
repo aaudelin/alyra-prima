@@ -90,14 +90,14 @@ contract InvoiceNFT is ERC721, Ownable {
     /**
      * @notice Invoice status enum
      * @dev NEW new generated invoice
-     * @dev ACCEPTED invoice has been accepted by the debtor
+     * @dev APPROVED invoice has been accepted by the debtor
      * @dev IN_PROGRESS invoice has an investor
      * @dev PAID invoice is paid by the debtor
      * @dev OVERDUE invoice is overdue
      */
     enum InvoiceStatus {
         NEW,
-        ACCEPTED,
+        APPROVED,
         IN_PROGRESS,
         PAID,
         OVERDUE
@@ -162,8 +162,8 @@ contract InvoiceNFT is ERC721, Ownable {
             InvoiceNFT_WrongInvoiceStatus(tokenId, _invoices[tokenId].invoiceStatus)
         );
         _invoices[tokenId].collateral = collateral;
-        _invoices[tokenId].invoiceStatus = InvoiceStatus.ACCEPTED;
-        emit InvoiceNFT_StatusChanged(tokenId, InvoiceStatus.ACCEPTED);
+        _invoices[tokenId].invoiceStatus = InvoiceStatus.APPROVED;
+        emit InvoiceNFT_StatusChanged(tokenId, InvoiceStatus.APPROVED);
     }
 
     /**
@@ -175,7 +175,7 @@ contract InvoiceNFT is ERC721, Ownable {
     function investInvoice(uint256 tokenId, Company memory investor) external onlyOwner {
         _requireOwned(tokenId);
         require(
-            _invoices[tokenId].invoiceStatus == InvoiceStatus.ACCEPTED,
+            _invoices[tokenId].invoiceStatus == InvoiceStatus.APPROVED,
             InvoiceNFT_WrongInvoiceStatus(tokenId, _invoices[tokenId].invoiceStatus)
         );
         _transfer(_ownerOf(tokenId), investor.name, tokenId);
