@@ -183,6 +183,14 @@ contract Prima {
         return invoiceNFT.createInvoice(invoiceParams.creditor.name, invoiceParams);
     }
 
+    /**
+     * @notice Accept an invoice
+     * @dev This function allows the debtor to accept an invoice
+     * @dev This function uses the Collateral contract to manage the collateral
+     * @dev This function updates the active collateral of the debtor
+     * @param tokenId The token id of the invoice
+     * @param collateralAmount The amount of collateral to add
+     */
     function acceptInvoice(uint256 tokenId, uint256 collateralAmount) external {
         InvoiceNFT.Invoice memory invoice = invoiceNFT.getInvoice(tokenId);
         require(invoice.debtor.name == msg.sender, Prima_InvalidDebtor(tokenId, msg.sender));
