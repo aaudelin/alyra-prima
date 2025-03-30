@@ -196,7 +196,10 @@ contract Prima {
         require(invoice.debtor.name == msg.sender, Prima_InvalidDebtor(tokenId, msg.sender));
 
         uint256 totalCollateral = collateral.getCollateral(msg.sender);
-        require(_activeCollateral[msg.sender] + collateralAmount <= totalCollateral, Prima_InvalidCollateralAmount(collateralAmount, _activeCollateral[msg.sender], totalCollateral));
+        require(
+            _activeCollateral[msg.sender] + collateralAmount <= totalCollateral,
+            Prima_InvalidCollateralAmount(collateralAmount, _activeCollateral[msg.sender], totalCollateral)
+        );
         _activeCollateral[msg.sender] += collateralAmount;
         invoiceNFT.acceptInvoice(tokenId, collateralAmount);
     }
