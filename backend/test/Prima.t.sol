@@ -477,6 +477,7 @@ contract PrimaAcceptInvoiceTest is Test {
     Collateral collateral;
     PrimaToken primaToken;
     InvoiceNFT.Invoice invoice;
+    InvoiceNFT.InvoiceParams invoiceParams;
 
     address debtor = makeAddr("debtor");
     address creditor = makeAddr("creditor");
@@ -491,7 +492,7 @@ contract PrimaAcceptInvoiceTest is Test {
         collateral = prima.collateral();
 
         vm.startPrank(creditor);
-        InvoiceNFT.InvoiceParams memory invoiceParams = InvoiceNFT.InvoiceParams({
+        invoiceParams = InvoiceNFT.InvoiceParams({
             id: "1",
             activity: "Export of goods",
             country: "Italy",
@@ -520,7 +521,71 @@ contract PrimaAcceptInvoiceTest is Test {
         vm.startPrank(address(prima));
         InvoiceNFT.Invoice memory getInvoice = invoiceNFT.getInvoice(1);
         assertEq(getInvoice.collateral, 100);
-        assertEq(uint256(getInvoice.invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.APPROVED));
+        assertEq(uint256(getInvoice.invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.ACCEPTED));
+        vm.stopPrank();
+    }
+
+    function test_AcceptInvoice_Success_MultipleCollaterals() public {
+        vm.prank(creditor);
+        prima.generateInvoice(invoiceParams);
+
+        vm.startPrank(debtor);
+        primaToken.mint(debtor, 1000000);
+        primaToken.approve(address(prima), 100);
+        prima.addCollateral(100);
+        prima.acceptInvoice(1, 50);
+        prima.acceptInvoice(2, 50);
+        vm.stopPrank();
+
+        vm.startPrank(address(prima));
+        InvoiceNFT.Invoice memory getInvoice1 = invoiceNFT.getInvoice(1);
+        InvoiceNFT.Invoice memory getInvoice2 = invoiceNFT.getInvoice(2);
+        assertEq(getInvoice1.collateral, 50);
+        assertEq(uint256(getInvoice1.invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.ACCEPTED));
+        assertEq(getInvoice2.collateral, 50);
+        assertEq(uint256(getInvoice2.invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.ACCEPTED));
+        vm.stopPrank();
+    }
+
+    function test_AcceptInvoice_Revert_InvalidDebtor() public {
+        address debtor2 = makeAddr("debtor2");
+        vm.startPrank(debtor2);
+        vm.expectRevert(abi.encodeWithSelector(Prima.Prima_InvalidDebtor.selector, 1, debtor2));
+        prima.acceptInvoice(1, 100);
+        vm.stopPrank();
+    }
+
+    function test_AcceptInvoice_Revert_InvalidCollateralAmount() public {
+        vm.startPrank(debtor);
+        primaToken.mint(debtor, 1000000);
+        primaToken.approve(address(prima), 20);
+        prima.addCollateral(20);
+        vm.expectRevert(abi.encodeWithSelector(Prima.Prima_InvalidCollateralAmount.selector, 100, 0, 20));
+        prima.acceptInvoice(1, 100);
+        vm.stopPrank();
+    }
+
+
+    function test_AcceptInvoice_Revert_InvalidSecondCollateralAmount() public {
+        vm.startPrank(debtor);
+        primaToken.mint(debtor, 1000000);
+        primaToken.approve(address(prima), 100);
+        prima.addCollateral(100);
+        prima.acceptInvoice(1, 80);
+        vm.expectRevert(abi.encodeWithSelector(Prima.Prima_InvalidCollateralAmount.selector, 40, 80, 100));
+        prima.acceptInvoice(1, 40);
+        vm.stopPrank();
+    }
+
+    function test_AcceptInvoice_Revert_SameInvoiceId() public {
+        vm.startPrank(debtor);
+        primaToken.mint(debtor, 1000000);
+        primaToken.approve(address(prima), 100);
+        prima.addCollateral(100);
+        prima.acceptInvoice(1, 10);
+
+        vm.expectRevert(abi.encodeWithSelector(InvoiceNFT.InvoiceNFT_WrongInvoiceStatus.selector, 1, InvoiceNFT.InvoiceStatus.ACCEPTED));
+        prima.acceptInvoice(1, 10);
         vm.stopPrank();
     }
 }

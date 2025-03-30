@@ -204,7 +204,18 @@ contract Prima {
         invoiceNFT.acceptInvoice(tokenId, collateralAmount);
     }
 
-    function investInvoice(uint256 tokenId) external {}
+    /**
+     * @notice Invest in an invoice
+     * @dev This function allows the investor to invest in an invoice
+     * @dev This function transfers the amount to pay from the investor to the creditor
+     * @param tokenId The token id of the invoice
+     * @param investor The investor of the invoice
+     */
+    function investInvoice(uint256 tokenId, InvoiceNFT.Company memory investor) external {
+        InvoiceNFT.Invoice memory invoice = invoiceNFT.getInvoice(tokenId);
+        primaToken.transferFrom(msg.sender, address(invoice.creditor.name), invoice.amountToPay);
+        invoiceNFT.investInvoice(tokenId, investor);
+    }
 
     function payInvoice(uint256 tokenId) external {}
 

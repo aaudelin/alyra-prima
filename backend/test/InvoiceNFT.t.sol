@@ -144,20 +144,20 @@ contract InvoiceNFTAcceptInvoiceTest is Test {
     function test_AcceptInvoice_SuccessNoCollateral() public {
         uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
         vm.expectEmit();
-        emit InvoiceNFT.InvoiceNFT_StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.APPROVED);
+        emit InvoiceNFT.InvoiceNFT_StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.ACCEPTED);
         invoiceNFT.acceptInvoice(tokenId, 0);
         assertEq(invoiceNFT.ownerOf(tokenId), creditor);
-        assertEq(uint256(invoiceNFT.getInvoice(tokenId).invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.APPROVED));
+        assertEq(uint256(invoiceNFT.getInvoice(tokenId).invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.ACCEPTED));
         assertEq(invoiceNFT.getInvoice(tokenId).collateral, 0);
     }
 
     function test_AcceptInvoice_SuccessWithCollateral() public {
         uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
         vm.expectEmit();
-        emit InvoiceNFT.InvoiceNFT_StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.APPROVED);
+        emit InvoiceNFT.InvoiceNFT_StatusChanged(tokenId, InvoiceNFT.InvoiceStatus.ACCEPTED);
         invoiceNFT.acceptInvoice(tokenId, 100);
         assertEq(invoiceNFT.ownerOf(tokenId), creditor);
-        assertEq(uint256(invoiceNFT.getInvoice(tokenId).invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.APPROVED));
+        assertEq(uint256(invoiceNFT.getInvoice(tokenId).invoiceStatus), uint256(InvoiceNFT.InvoiceStatus.ACCEPTED));
         assertEq(invoiceNFT.getInvoice(tokenId).collateral, 100);
     }
 
@@ -178,7 +178,7 @@ contract InvoiceNFTAcceptInvoiceTest is Test {
         invoiceNFT.acceptInvoice(tokenId, 0);
         vm.expectRevert(
             abi.encodeWithSelector(
-                InvoiceNFT.InvoiceNFT_WrongInvoiceStatus.selector, tokenId, uint256(InvoiceNFT.InvoiceStatus.APPROVED)
+                InvoiceNFT.InvoiceNFT_WrongInvoiceStatus.selector, tokenId, uint256(InvoiceNFT.InvoiceStatus.ACCEPTED)
             )
         );
         invoiceNFT.acceptInvoice(tokenId, 0);
@@ -323,7 +323,7 @@ contract InvoiceNFTPayInvoiceTest is Test {
         invoiceNFT.acceptInvoice(tokenId, 0);
         vm.expectRevert(
             abi.encodeWithSelector(
-                InvoiceNFT.InvoiceNFT_WrongInvoiceStatus.selector, tokenId, uint256(InvoiceNFT.InvoiceStatus.APPROVED)
+                InvoiceNFT.InvoiceNFT_WrongInvoiceStatus.selector, tokenId, uint256(InvoiceNFT.InvoiceStatus.ACCEPTED)
             )
         );
         invoiceNFT.payInvoice(tokenId, true);
