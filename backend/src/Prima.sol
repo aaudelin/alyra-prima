@@ -138,6 +138,12 @@ contract Prima {
         }
     }
 
+    /**
+     * @notice Generate an invoice
+     * @dev This function generates an invoice using the InvoiceNFT contract
+     * @param invoiceParams The parameters of the invoice
+     * @return tokenId The token id of the invoice
+     */
     function generateInvoice(InvoiceNFT.InvoiceParams calldata invoiceParams) external returns (uint256) {
         require(bytes(invoiceParams.id).length > 0, Prima_InvalidInvoiceId());
         require(invoiceParams.dueDate > block.timestamp, Prima_InvalidDueDate(invoiceParams.dueDate));
