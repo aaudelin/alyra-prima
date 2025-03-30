@@ -565,7 +565,6 @@ contract PrimaAcceptInvoiceTest is Test {
         vm.stopPrank();
     }
 
-
     function test_AcceptInvoice_Revert_InvalidSecondCollateralAmount() public {
         vm.startPrank(debtor);
         primaToken.mint(debtor, 1000000);
@@ -584,7 +583,11 @@ contract PrimaAcceptInvoiceTest is Test {
         prima.addCollateral(100);
         prima.acceptInvoice(1, 10);
 
-        vm.expectRevert(abi.encodeWithSelector(InvoiceNFT.InvoiceNFT_WrongInvoiceStatus.selector, 1, InvoiceNFT.InvoiceStatus.ACCEPTED));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                InvoiceNFT.InvoiceNFT_WrongInvoiceStatus.selector, 1, InvoiceNFT.InvoiceStatus.ACCEPTED
+            )
+        );
         prima.acceptInvoice(1, 10);
         vm.stopPrank();
     }
@@ -653,11 +656,12 @@ contract PrimaInvestInvoiceTest is Test {
     }
 
     function test_InvestInvoice_Revert_AlreadyInvested() public {
-        InvoiceNFT.Company memory investorCompany2 = InvoiceNFT.Company({name: makeAddr("investor2"), creditScore: InvoiceNFT.CreditScore.A});
+        InvoiceNFT.Company memory investorCompany2 =
+            InvoiceNFT.Company({name: makeAddr("investor2"), creditScore: InvoiceNFT.CreditScore.A});
         vm.startPrank(debtor);
         prima.acceptInvoice(1, 0);
         vm.stopPrank();
-    
+
         vm.startPrank(investorCompany.name);
         primaToken.mint(investor, 1000000);
         primaToken.approve(address(prima), invoice.amountToPay);
@@ -667,7 +671,11 @@ contract PrimaInvestInvoiceTest is Test {
         vm.startPrank(investorCompany2.name);
         primaToken.mint(investorCompany2.name, 1000000);
         primaToken.approve(address(prima), invoice.amountToPay);
-        vm.expectRevert(abi.encodeWithSelector(InvoiceNFT.InvoiceNFT_WrongInvoiceStatus.selector, 1, InvoiceNFT.InvoiceStatus.IN_PROGRESS));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                InvoiceNFT.InvoiceNFT_WrongInvoiceStatus.selector, 1, InvoiceNFT.InvoiceStatus.IN_PROGRESS
+            )
+        );
         prima.investInvoice(1, investorCompany2);
         vm.stopPrank();
     }
