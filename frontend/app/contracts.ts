@@ -1,7 +1,7 @@
-export const PRIMA_ADDRESS = process.env.NEXT_PUBLIC_PRIMA_ADDRESS;
-export const TOKEN_ADDRESS = process.env.NEXT_PUBLIC_TOKEN_ADDRESS;
-export const INVOICE_ADDRESS = process.env.NEXT_PUBLIC_INVOICE_ADDRESS;
-export const COLLATERAL_ADDRESS = process.env.NEXT_PUBLIC_COLLATERAL_ADDRESS;
+export const PRIMA_ADDRESS = process.env.NEXT_PUBLIC_PRIMA_ADDRESS as `0x${string}`;
+export const TOKEN_ADDRESS = process.env.NEXT_PUBLIC_TOKEN_ADDRESS as `0x${string}`;
+export const INVOICE_ADDRESS = process.env.NEXT_PUBLIC_INVOICE_ADDRESS as `0x${string}`;
+export const COLLATERAL_ADDRESS = process.env.NEXT_PUBLIC_COLLATERAL_ADDRESS as `0x${string}`;
 
 export const TOKEN_ABI = [
   { type: "constructor", inputs: [], stateMutability: "nonpayable" },
