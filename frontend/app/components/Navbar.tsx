@@ -44,16 +44,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* User section */}
-        <div className="pt-4 border-t border-primary-foreground">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full"></div>
-            <div>
-              <p className="font-medium">John Doe</p>
-              <p className="text-sm">john@example.com</p>
-            </div>
-          </div>
-        </div>
       </nav>
     </div>
   );
