@@ -125,6 +125,7 @@ contract Prima {
      * @notice Compute the minimum and maximum amounts for an invoice
      * @dev This function computes the minimum and maximum amounts for an invoice based on the debtor's credit score
      * @dev This function is useful before creating an invoice
+     * @dev This function is for the POC purpose ONLY, those data simulate the real data from an oracle for example
      * @param amount The amount of the invoice
      * @param debtorCreditScore The credit score of the debtor
      * @return minimumAmount The minimum amount of the invoice
