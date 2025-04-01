@@ -33,7 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex`}
       >
         <Navbar />
-        <div className="flex-1">
+        <div className="flex-1 max-h-screen overflow-scroll pb-12 pl-4">
           <Providers>
             <Header />
             <main className="flex-1">{children}</main>

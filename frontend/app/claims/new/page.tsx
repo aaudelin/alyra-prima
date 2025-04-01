@@ -1,97 +1,288 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormDescription,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { CreditScore, Company } from "@/lib/types";
-import { useAccount } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { useState } from "react";
+import { PRIMA_ABI, PRIMA_ADDRESS } from "../../contracts";
+
+
+const FormSchema = z.object({
+  id: z.string().min(4, {
+    message: "ID doit faire au moins 4 caractères.",
+  }),
+  activity: z.string().min(10, {
+    message: "Activité doit faire au moins 10 caractères.",
+  }),
+  country: z.string().min(2, {
+    message: "Pays doit faire au moins 2 caractères.",
+  }),
+  dueDate: z.date().min(new Date(), {
+    message: "Date d'échéance doit être dans le futur.",
+  }),
+  amount: z.number().min(1, {
+    message: "Montant doit dépasser 1.",
+  }),
+  amountToPay: z.number().min(1, {
+    message: "Montant à payer doit dépasser 1.",
+  }),
+  debtorName: z.string().min(32, {
+    message: "Nom du débiteur doit être l'adresse ethereum sur 32 caractères.",
+  }),
+  debtorScore: z.number().min(0).max(5),
+});
 
 export default function NewClaim() {
   const { address } = useAccount();
-  const creditor: Company = {
+  const [amountTotal, setAmountTotal] = useState<number>(1000);
+  const [creditor, setCreditor] = useState<Company>({
     name: address as `0x${string}`,
     creditScore: Math.floor(Math.random() * 5) + 1,
-  };
+  });
+  const [debtor, setDebtor] = useState<Company>({
+    name: "0x1234567890123456789012345678901234567890" as `0x${string}`,
+    creditScore: Math.floor(Math.random() * 5) + 1,
+  });
+
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      id: "",
+      activity: "",
+      country: "",
+      dueDate: new Date(),
+      amount: undefined,
+      amountToPay: undefined,
+      debtorName: "",
+      debtorScore: debtor.creditScore,
+    },
+  });
+
+  const {data: minMaxAmounts } = useReadContract({
+    address: PRIMA_ADDRESS,
+    abi: PRIMA_ABI,
+    functionName: "computeAmounts",
+    args: [amountTotal, debtor.creditScore],
+    account: address,
+  }) as { data: [bigint, bigint] };
+
+  
+
+  function onSubmit(values: z.infer<typeof FormSchema>) {
+    // Do something with the form values.
+    // ✅ This will be type-safe and validated.
+    console.log("values", values);
+  }
 
   return (
     <div>
       <h1 className="text-4xl font-bold">Nouvelle créance</h1>
-
-      <form className="mt-8 space-y-6 max-w-2xl">
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="id" className="block text-sm font-medium">
-              Identifiant de la créance
-            </label>
-            <Input type="text" id="id" name="id" />
-          </div>
-
-          <div>
-            <label htmlFor="activity" className="block text-sm font-medium">
-              Activité
-            </label>
-            <Input type="text" id="activity" name="activity" />
-          </div>
-
-          <div>
-            <label htmlFor="country" className="block text-sm font-medium">
-              Pays
-            </label>
-            <Input type="text" id="country" name="country" />
-          </div>
-
-          <div>
-            <label htmlFor="dueDate" className="block text-sm font-medium">
-              Date d'échéance
-            </label>
-            <Input type="date" id="dueDate" name="dueDate" />
-          </div>
-
-          <div>
-            <label htmlFor="amount" className="block text-sm font-medium">
-              Montant
-            </label>
-            <Input type="number" id="amount" name="amount" />
-          </div>
-
-          <div>
-            <label htmlFor="amountToPay" className="block text-sm font-medium">
-              Montant à payer
-            </label>
-            <Input type="number" id="amountToPay" name="amountToPay" />
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Débiteur</h3>
-            <div>
-              <label htmlFor="debtorName" className="block text-sm font-medium">
-                Adresse Ethereum
-              </label>
-              <Input type="text" id="debtorName" name="debtorName" />
-            </div>
-            <div>
-              <label
-                htmlFor="debtorScore"
-                className="block text-sm font-medium"
-              >
-                Note de crédit (this value is disabled and random for the POC)
-              </label>
-              <Input
-                type="text"
-                id="debtorScore"
-                name="debtorScore"
-                disabled
-                defaultValue={CreditScore[Math.floor(Math.random() * 5) + 1]}
-              />
-            </div>
-          </div>
-        </div>
-
-        <Button
-          type="submit"
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="mt-8 space-y-4 max-w-2xl"
         >
-          Créer la créance
-        </Button>
-      </form>
+          <h3 className="text-lg font-medium">Informations de la créance</h3>
+          <FormField
+            control={form.control}
+            name="id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Identifiant de la créance</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="INV-001" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="activity"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Activité</FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="Vente de produits"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Pays</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="France" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="dueDate"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Date d'échéance</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-[240px] pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "dd/MM/yyyy")
+                        ) : (
+                          <span>Choisir une date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      locale={fr}
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="amount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Montant de la créance</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="1000"
+                    type="number"
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? Number(e.target.value) : null
+                      )
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <h3 className="text-lg font-medium">Débiteur</h3>
+          <FormField
+            control={form.control}
+            name="debtorName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Adresse Ethereum du débiteur</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="0x1234567890123456789012345678901234567890"
+                    type="text"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="debtorScore"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Note de crédit</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled
+                    type="text"
+                    {...field}
+                    value={CreditScore[field.value]}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Cette note de crédit est générée aléatoirement pour le POC.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="amountToPay"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Montant à payer</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="number"
+                    placeholder="990"
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value ? Number(e.target.value) : null
+                      )
+                    }
+                  />
+                </FormControl>
+                <FormDescription>
+                  Ce montant doit être compris entre {minMaxAmounts?.[0]?.toString()} et {minMaxAmounts?.[1]?.toString()}
+                  <Button type="button" className="ml-4" size={"sm"} variant={"outline"} onClick={() => setAmountTotal(form.getValues("amount") ?? 1000)}>Vérifier le montant</Button>
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit">Créer la créance</Button>
+        </form>
+      </Form>
     </div>
   );
 }
