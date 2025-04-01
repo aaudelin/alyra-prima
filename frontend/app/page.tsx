@@ -56,17 +56,17 @@ export default function Home() {
       <h1 className="text-4xl font-bold">Welcome to Prima</h1>
 
       <div className="grid grid-cols-3 gap-4 mt-8 mr-8">
-        <div className="p-6 border border-primary rounded-lg shadow-md">
+        <div className="p-6 bg-white border border-primary rounded-lg shadow-md">
           <p className="text-4xl font-bold">{debtorInvoices?.length || 0}</p>
           <p className="text-gray-600 mt-4">Total invoices as debtor</p>
         </div>
 
-        <div className="p-6 border border-primary rounded-lg shadow-md">
+        <div className="p-6 bg-white border border-primary rounded-lg shadow-md">
           <p className="text-4xl font-bold">{investorInvoices?.length || 0}</p>
           <p className="text-gray-600 mt-4">Total invoices as investor</p>
         </div>
 
-        <div className="p-6 border border-primary rounded-lg shadow-md">
+        <div className="p-6 bg-white border border-primary rounded-lg shadow-md">
           <p className="text-4xl font-bold">{creditorInvoices?.length || 0}</p>
           <p className="text-gray-600 mt-4">Total invoices as creditor</p>
         </div>

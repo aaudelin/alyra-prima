@@ -109,6 +109,10 @@ export default function NewClaim() {
   }) as { data: [bigint, bigint] };
 
   function onSubmit(values: z.infer<typeof FormSchema>) {
+    const newDebtor = {
+      name: values.debtorName,
+      creditScore: debtor.creditScore,
+    };
     const invoiceParams = {
       id: values.id,
       activity: values.activity,
@@ -116,7 +120,7 @@ export default function NewClaim() {
       dueDate: values.dueDate.getTime(),
       amount: values.amount,
       amountToPay: values.amountToPay,
-      debtor,
+      debtor: newDebtor,
       creditor,
     };
     writeContract({
@@ -304,9 +308,7 @@ export default function NewClaim() {
                   />
                 </FormControl>
                 <FormDescription>
-                  Ce montant doit être compris entre{" "}
-                  {minMaxAmounts?.[0]?.toString()} et{" "}
-                  {minMaxAmounts?.[1]?.toString()}
+                  {`Ce montant doit être compris entre ${minMaxAmounts?.[0]?.toString()} et ${minMaxAmounts?.[1]?.toString()}`}
                   <Button
                     type="button"
                     className="ml-4"
