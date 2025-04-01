@@ -11,12 +11,12 @@ export type Company = {
     creditScore: number;
 };
 
-enum InvoiceStatus {
-    NEW = 0,
-    ACCEPTED = 1,
-    IN_PROGRESS = 2,
-    PAID = 3,
-    OVERDUE = 4,
+export enum InvoiceStatus {
+    "Nouvelle" = 0,
+    "Acceptée" = 1,
+    "EnCours" = 2,
+    "Payée" = 3,
+    "En Retard" = 4,
 }
 
 export type Invoice = {

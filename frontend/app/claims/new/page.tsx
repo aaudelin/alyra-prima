@@ -1,40 +1,40 @@
 "use client";
 
+import ErrorComponent from "@/app/components/ErrorComponent";
+import { PRIMA_ABI, PRIMA_ADDRESS } from "@/app/contracts";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
-  FormDescription,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { CreditScore, Company } from "@/lib/types";
-import {
-  useWaitForTransactionReceipt,
-  BaseError,
-  useAccount,
-  useReadContract,
-  useWriteContract,
-} from "wagmi";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { Company, CreditScore } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { add, format } from "date-fns";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { use, useEffect, useState } from "react";
-import { PRIMA_ABI, PRIMA_ADDRESS } from "../../contracts";
-import ErrorComponent from "@/app/components/ErrorComponent";
+import { CalendarIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import {
+  BaseError,
+  useAccount,
+  useReadContract,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
+import { z } from "zod";
 
 const FormSchema = z.object({
   id: z.string().min(4, {
