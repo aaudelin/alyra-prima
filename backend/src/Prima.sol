@@ -247,18 +247,11 @@ contract Prima {
     /**
      * @notice Get an invoice
      * @dev This function allows the user to get an invoice
-     * @dev This function checks if the user is the owner of the invoice, the investor, the creditor or the debtor
      * @param tokenId The token id of the invoice
      * @return invoice The invoice
      */
     function getInvoice(uint256 tokenId) external view returns (InvoiceNFT.Invoice memory) {
-        InvoiceNFT.Invoice memory invoice = invoiceNFT.getInvoice(tokenId);
-        require(
-            invoiceNFT.ownerOf(tokenId) == msg.sender || invoice.investor.name == msg.sender
-                || invoice.creditor.name == msg.sender || invoice.debtor.name == msg.sender,
-            Prima_InvalidSender(msg.sender)
-        );
-        return invoice;
+        return invoiceNFT.getInvoice(tokenId);
     }
 
     /**

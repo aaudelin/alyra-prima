@@ -955,30 +955,6 @@ contract PrimaGetInvoicesTest is Test {
         vm.stopPrank();
     }
 
-    function test_GetInvoice_Revert_InvalidSender() public {
-        vm.startPrank(creditor);
-        prima.generateInvoice(
-            InvoiceNFT.InvoiceParams({
-                id: "1",
-                activity: "Export of goods",
-                country: "Italy",
-                dueDate: block.timestamp + 1000,
-                amount: 100,
-                amountToPay: 98,
-                debtor: InvoiceNFT.Company({name: debtor, creditScore: InvoiceNFT.CreditScore.A}),
-                creditor: InvoiceNFT.Company({name: creditor, creditScore: InvoiceNFT.CreditScore.A})
-            })
-        );
-        assertEq(prima.getCreditorInvoices().length, 1);
-        assertEq(prima.getCreditorInvoices()[0], 1);
-        vm.stopPrank();
-
-        vm.startPrank(investor);
-        vm.expectRevert(abi.encodeWithSelector(Prima.Prima_InvalidSender.selector, investor));
-        prima.getInvoice(1);
-        vm.stopPrank();
-    }
-
     function test_GetDebtorInvoices_Empty() public {
         vm.startPrank(debtor);
         uint256[] memory invoiceIds = prima.getDebtorInvoices();
