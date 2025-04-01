@@ -12,7 +12,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { CreditScore, Company } from "@/lib/types";
-import { useAccount, useReadContract } from "wagmi";
+import {
+  useWaitForTransactionReceipt,
+  BaseError,
+  useAccount,
+  useReadContract,
+  useWriteContract,
+} from "wagmi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -24,11 +30,11 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { add, format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { PRIMA_ABI, PRIMA_ADDRESS } from "../../contracts";
-
+import ErrorComponent from "@/app/components/ErrorComponent";
 
 const FormSchema = z.object({
   id: z.string().min(4, {
@@ -62,10 +68,23 @@ export default function NewClaim() {
     name: address as `0x${string}`,
     creditScore: Math.floor(Math.random() * 5) + 1,
   });
-  const [debtor, setDebtor] = useState<Company>({
+  const [debtor] = useState<Company>({
     name: "0x1234567890123456789012345678901234567890" as `0x${string}`,
     creditScore: Math.floor(Math.random() * 5) + 1,
   });
+
+  const { data: hash, writeContract, error: writeError } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash,
+    });
+
+  useEffect(() => {
+    setCreditor({
+      name: address as `0x${string}`,
+      creditScore: Math.floor(Math.random() * 5) + 1,
+    });
+  }, [address]);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -81,7 +100,7 @@ export default function NewClaim() {
     },
   });
 
-  const {data: minMaxAmounts } = useReadContract({
+  const { data: minMaxAmounts } = useReadContract({
     address: PRIMA_ADDRESS,
     abi: PRIMA_ABI,
     functionName: "computeAmounts",
@@ -89,12 +108,24 @@ export default function NewClaim() {
     account: address,
   }) as { data: [bigint, bigint] };
 
-  
-
   function onSubmit(values: z.infer<typeof FormSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log("values", values);
+    const invoiceParams = {
+      id: values.id,
+      activity: values.activity,
+      country: values.country,
+      dueDate: values.dueDate.getTime(),
+      amount: values.amount,
+      amountToPay: values.amountToPay,
+      debtor,
+      creditor,
+    };
+    writeContract({
+      address: PRIMA_ADDRESS,
+      abi: PRIMA_ABI,
+      functionName: "generateInvoice",
+      args: [invoiceParams],
+      account: address,
+    });
   }
 
   return (
@@ -273,13 +304,28 @@ export default function NewClaim() {
                   />
                 </FormControl>
                 <FormDescription>
-                  Ce montant doit être compris entre {minMaxAmounts?.[0]?.toString()} et {minMaxAmounts?.[1]?.toString()}
-                  <Button type="button" className="ml-4" size={"sm"} variant={"outline"} onClick={() => setAmountTotal(form.getValues("amount") ?? 1000)}>Vérifier le montant</Button>
+                  Ce montant doit être compris entre{" "}
+                  {minMaxAmounts?.[0]?.toString()} et{" "}
+                  {minMaxAmounts?.[1]?.toString()}
+                  <Button
+                    type="button"
+                    className="ml-4"
+                    size={"sm"}
+                    variant={"outline"}
+                    onClick={() =>
+                      setAmountTotal(form.getValues("amount") ?? 1000)
+                    }
+                  >
+                    Vérifier le montant
+                  </Button>
                 </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
+          {isConfirming && <div>Envoi de la transaction...</div>}
+          {isConfirmed && <div>Votre créance a bien été générée.</div>}
+          {writeError && <ErrorComponent error={writeError as BaseError} />}
           <Button type="submit">Créer la créance</Button>
         </form>
       </Form>
