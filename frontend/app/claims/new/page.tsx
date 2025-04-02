@@ -66,11 +66,11 @@ export default function NewClaim() {
   const [amountTotal, setAmountTotal] = useState<number>(1000);
   const [creditor, setCreditor] = useState<Company>({
     name: address as `0x${string}`,
-    creditScore: Math.floor(Math.random() * 5) + 1,
+    creditScore: Math.floor(Math.random() * 5),
   });
   const [debtor] = useState<Company>({
     name: "0x1234567890123456789012345678901234567890" as `0x${string}`,
-    creditScore: Math.floor(Math.random() * 5) + 1,
+    creditScore: Math.floor(Math.random() * 5),
   });
 
   const { data: hash, writeContract, error: writeError } = useWriteContract();
@@ -82,7 +82,7 @@ export default function NewClaim() {
   useEffect(() => {
     setCreditor({
       name: address as `0x${string}`,
-      creditScore: Math.floor(Math.random() * 5) + 1,
+      creditScore: Math.floor(Math.random() * 5),
     });
   }, [address]);
 
