@@ -30,6 +30,7 @@ export default function InvoiceCard({
   const { data: hash, writeContract: acceptInvoice } = useWriteContract();
   const { data: hashInvest, writeContract: investInvoice } = useWriteContract();
   const { data: hashApprove, writeContract: approve } = useWriteContract();
+  const { data: hashPay, writeContract: payInvoice } = useWriteContract();
   const {
     isLoading: isAccepting,
     isSuccess: isAccepted,
@@ -50,6 +51,13 @@ export default function InvoiceCard({
   } = useWaitForTransactionReceipt({
     hash: hashApprove,
   });
+  const {
+    isLoading: isPaying,
+    isSuccess: isPaid,
+    isError: isErrorPaying,
+  } = useWaitForTransactionReceipt({
+    hash: hashPay,
+  });
 
   const onAcceptInvoice = async () => {
     const collateralAmount = parseEther(collateral.toString());
@@ -67,12 +75,11 @@ export default function InvoiceCard({
       name: address as `0x${string}`,
       creditScore: Math.floor(Math.random() * 5),
     };
-    const amountToPay = parseEther(invoice.amountToPay.toString());
     await approve({
       address: TOKEN_ADDRESS,
       abi: TOKEN_ABI,
       functionName: "approve",
-      args: [PRIMA_ADDRESS, amountToPay],
+      args: [PRIMA_ADDRESS, invoice.amountToPay],
       account: address,
     });
 
@@ -81,6 +88,23 @@ export default function InvoiceCard({
       abi: PRIMA_ABI,
       functionName: "investInvoice",
       args: [invoice.tokenId, investor],
+      account: address,
+    });
+  };
+
+  const onPayInvoice = async () => {
+    await approve({
+      address: TOKEN_ADDRESS,
+      abi: TOKEN_ABI,
+      functionName: "approve",
+      args: [PRIMA_ADDRESS, invoice.amount],
+      account: address,
+    });
+    await payInvoice({
+      address: PRIMA_ADDRESS,
+      abi: PRIMA_ABI,
+      functionName: "payInvoice",
+      args: [invoice.tokenId],
       account: address,
     });
   };
@@ -211,6 +235,19 @@ export default function InvoiceCard({
             </Button>
           </div>
         )}
+
+      {invoice.debtor.name === address && invoice.invoiceStatus === 2 && (
+        <div className="flex flex-col gap-2 mt-4 w-full">
+          <div>
+            {isPaying && <div>Payer la créance en cours...</div>}
+            {isPaid && <div className="text-green-500">Créance payée avec succès</div>}
+            {isErrorPaying && <div className="text-red-500">Erreur lors du paiement</div>}
+            <Button type="button" onClick={onPayInvoice}>
+              Payer la créance
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

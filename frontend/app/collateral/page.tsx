@@ -40,13 +40,6 @@ export default function Collateral() {
     hash: hash,
   });
 
-  const { data: balance, refetch: refetchBalance } = useReadContract({
-    address: TOKEN_ADDRESS,
-    abi: TOKEN_ABI,
-    functionName: "balanceOf",
-    args: [address],
-  }) as { data: bigint; refetch: () => void };
-
   const onSubmit = async () => {
     const amountMint = parseEther(amount.toString());
     await approve({
@@ -65,15 +58,11 @@ export default function Collateral() {
     });
   };
 
-  useEffect(() => {
-    refetchBalance();
-  }, [refetchBalance, isConfirmed]);
 
   return (
     <div>
       <h1 className="text-4xl font-bold">Collatéral</h1>
       <div className="mt-8 space-y-4 max-w-2xl">
-        <p>Balance: {formatEther(balance ?? BigInt(0))} PGT</p>
         <div className="flex items-center gap-2">
           <Input
             className="w-1/2"
