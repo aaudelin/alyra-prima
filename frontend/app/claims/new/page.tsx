@@ -28,7 +28,7 @@ import { CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
-  BaseError,
+  type BaseError,
   useAccount,
   useReadContract,
   useWaitForTransactionReceipt,
@@ -74,10 +74,13 @@ export default function NewClaim() {
   });
 
   const { data: hash, writeContract, error: writeError } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForTransactionReceipt({
-      hash,
-    });
+  const {
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+    isError: isError
+  } = useWaitForTransactionReceipt({
+    hash,
+  });
 
   useEffect(() => {
     setCreditor({
@@ -123,13 +126,17 @@ export default function NewClaim() {
       debtor: newDebtor,
       creditor,
     };
-    writeContract({
-      address: PRIMA_ADDRESS,
-      abi: PRIMA_ABI,
-      functionName: "generateInvoice",
-      args: [invoiceParams],
-      account: address,
-    });
+    try {
+      writeContract({
+        address: PRIMA_ADDRESS,
+        abi: PRIMA_ABI,
+        functionName: "generateInvoice",
+        args: [invoiceParams],
+        account: address,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
@@ -326,7 +333,8 @@ export default function NewClaim() {
             )}
           />
           {isConfirming && <div>Envoi de la transaction...</div>}
-          {isConfirmed && <div>Votre créance a bien été générée.</div>}
+          {isConfirmed && <div className="text-green-500">Votre créance a bien été générée.</div>}
+          {isError && <div className="text-red-500">Erreur lors de la génération de la créance.</div>}
           {writeError && <ErrorComponent error={writeError as BaseError} />}
           <Button type="submit">Créer la créance</Button>
         </form>
