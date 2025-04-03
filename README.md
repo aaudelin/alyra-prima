@@ -21,6 +21,11 @@ Deploy the ERC 20 Token
 forge script script/PrimaToken.s.sol:PrimaTokenScript --rpc-url $RPC_URL --private-key $PRIVATE_KEY --broadcast
 ```
 
+Mint token for local
+```bash
+forge script script/PrimaTokenMintLocal.s.sol:PrimaTokenMintLocalScript --rpc-url $RPC_URL --private-key $PRIVATE_KEY --broadcast $TOKEN_ADDRESS --sig 'run(address)'
+```
+
 Deploy the Prima contract and children (Invoice NFT and Collateral)
 ```bash
 forge script script/Prima.s.sol:PrimaScript --rpc-url $RPC_URL --private-key $PRIVATE_KEY --broadcast $TOKEN_ADDRESS --sig 'run(address)'
