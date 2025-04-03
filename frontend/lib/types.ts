@@ -21,6 +21,7 @@ export enum InvoiceStatus {
 }
 
 export type Invoice = {
+    tokenId: number;
     id: string;
     activity: string;
     country: string;

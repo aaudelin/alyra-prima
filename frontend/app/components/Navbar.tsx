@@ -22,6 +22,14 @@ const Navbar = () => {
             </div>
 
             <div className="space-y-2">
+              <h2 className="text-lg font-semibold">Paiements</h2>
+              <div className="pl-4 flex flex-col">
+                <Link href="/collateral">Collatéral</Link>
+                <Link href="/payments/upcoming">Mes paiements</Link>
+              </div>
+            </div>
+
+            <div className="space-y-2">
               <h2 className="text-lg font-semibold">Investissements</h2>
               <div className="pl-4 flex flex-col">
                 <Link href="/invest">Investir</Link>
@@ -29,14 +37,6 @@ const Navbar = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <h2 className="text-lg font-semibold">Paiements</h2>
-              <div className="pl-4 flex flex-col">
-                <Link href="/collateral">Collatéral</Link>
-                <Link href="/payments/upcoming">Paiements à venir</Link>
-                <Link href="/payments/completed">Paiements terminés</Link>
-              </div>
-            </div>
           </div>
         </div>
 
