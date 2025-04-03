@@ -32,6 +32,7 @@ const Navbar = () => {
             <div className="space-y-2">
               <h2 className="text-lg font-semibold">Paiements</h2>
               <div className="pl-4 flex flex-col">
+                <Link href="/collateral">Collatéral</Link>
                 <Link href="/payments/upcoming">Paiements à venir</Link>
                 <Link href="/payments/completed">Paiements terminés</Link>
               </div>
