@@ -15,9 +15,9 @@ export type Company = {
 export enum InvoiceStatus {
     "Nouvelle" = 0,
     "Acceptée" = 1,
-    "EnCours" = 2,
+    "En cours" = 2,
     "Payée" = 3,
-    "En Retard" = 4,
+    "En retard" = 4,
 }
 
 export type Invoice = {
