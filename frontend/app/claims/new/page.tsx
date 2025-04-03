@@ -27,6 +27,7 @@ import { fr } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { formatEther, parseEther } from "viem";
 import {
   type BaseError,
   useAccount,
@@ -63,7 +64,7 @@ const FormSchema = z.object({
 
 export default function NewClaim() {
   const { address } = useAccount();
-  const [amountTotal, setAmountTotal] = useState<number>(1000);
+  const [amountTotal, setAmountTotal] = useState<bigint>(parseEther("1000"));
   const [creditor, setCreditor] = useState<Company>({
     name: address as `0x${string}`,
     creditScore: Math.floor(Math.random() * 5),
@@ -121,8 +122,8 @@ export default function NewClaim() {
       activity: values.activity,
       country: values.country,
       dueDate: values.dueDate.getTime(),
-      amount: values.amount,
-      amountToPay: values.amountToPay,
+      amount: parseEther(values.amount.toString()),
+      amountToPay: parseEther(values.amountToPay.toString()),
       debtor: newDebtor,
       creditor,
     };
@@ -315,14 +316,14 @@ export default function NewClaim() {
                   />
                 </FormControl>
                 <FormDescription>
-                  {`Ce montant doit être compris entre ${minMaxAmounts?.[0]?.toString()} et ${minMaxAmounts?.[1]?.toString()}`}
+                  {`Ce montant doit être compris entre ${formatEther(minMaxAmounts?.[0] ?? BigInt(0))} et ${formatEther(minMaxAmounts?.[1] ?? BigInt(0))}`}
                   <Button
                     type="button"
                     className="ml-4"
                     size={"sm"}
                     variant={"outline"}
                     onClick={() =>
-                      setAmountTotal(form.getValues("amount") ?? 1000)
+                      setAmountTotal(parseEther(form.getValues("amount")?.toString() ?? "1000"))
                     }
                   >
                     Vérifier le montant

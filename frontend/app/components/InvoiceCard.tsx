@@ -15,6 +15,7 @@ import {
   TOKEN_ABI,
   TOKEN_ADDRESS,
 } from "../contracts";
+import { formatEther, parseEther } from "viem";
 
 export default function InvoiceCard({
   invoice,
@@ -45,18 +46,18 @@ export default function InvoiceCard({
   });
   const {
     isLoading: isApproving,
-    isSuccess: isApproved,
     isError: isErrorApproving,
   } = useWaitForTransactionReceipt({
     hash: hashApprove,
   });
 
   const onAcceptInvoice = async () => {
+    const collateralAmount = parseEther(collateral.toString());
     await acceptInvoice({
       address: PRIMA_ADDRESS,
       abi: PRIMA_ABI,
       functionName: "acceptInvoice",
-      args: [invoice.tokenId, collateral],
+      args: [invoice.tokenId, collateralAmount],
       account: address,
     });
   };
@@ -66,11 +67,12 @@ export default function InvoiceCard({
       name: address as `0x${string}`,
       creditScore: Math.floor(Math.random() * 5),
     };
+    const amountToPay = parseEther(invoice.amountToPay.toString());
     await approve({
       address: TOKEN_ADDRESS,
       abi: TOKEN_ABI,
       functionName: "approve",
-      args: [PRIMA_ADDRESS, invoice.amountToPay],
+      args: [PRIMA_ADDRESS, amountToPay],
       account: address,
     });
 
@@ -156,13 +158,13 @@ export default function InvoiceCard({
         </div>
         <div className="flex flex-col items-end">
           <div className="text-lg font-semibold">
-            Total: {invoice.amount.toString()} PGT
+            Total: {formatEther(invoice.amount)} PGT
           </div>
           <div className="text-sm text-gray-500">
-            A payer: {invoice.amountToPay.toString()} PGT
+            A payer: {formatEther(invoice.amountToPay)} PGT
           </div>
           <div className="text-sm text-gray-500">
-            Collatéral: {invoice.collateral.toString()} PGT
+            Collatéral: {formatEther(invoice.collateral)} PGT
           </div>
         </div>
       </div>

@@ -26,9 +26,9 @@ export type Invoice = {
     activity: string;
     country: string;
     dueDate: number;
-    amount: number;
-    amountToPay: number;
-    collateral: number;
+    amount: bigint;
+    amountToPay: bigint;
+    collateral: bigint;
     debtor: Company;
     creditor: Company;
     investor: Company;
