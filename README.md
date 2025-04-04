@@ -64,6 +64,27 @@ Mint token for sepolia
 forge script script/PrimaTokenMintLocal.s.sol:PrimaTokenMintLocalScript --rpc-url $RPC_URL --private-key $PRIVATE_KEY --broadcast $TOKEN_ADDRESS --sig 'runSepolia(address)'
 ```
 
+## Frontend
+
+Configure `.env.local` file
+```yml
+NEXT_PUBLIC_PROJECT_ID=
+NEXT_PUBLIC_PRIMA_ADDRESS=
+NEXT_PUBLIC_TOKEN_ADDRESS=
+NEXT_PUBLIC_INVOICE_ADDRESS=
+NEXT_PUBLIC_COLLATERAL_ADDRESS=
+```
+
+Install dependencies
+```bash
+npm i
+```
+
+Run project
+```bash
+npm run dev
+```
+
 ## Existing deployments
 
 ### Sepolia
