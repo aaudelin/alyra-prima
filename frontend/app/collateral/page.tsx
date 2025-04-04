@@ -1,22 +1,28 @@
 "use client";
 
+import { config } from "@/app/wagmi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { parseEther } from "viem";
+import { formatEther, parseEther } from "viem";
 import {
-    useAccount,
-    useWaitForTransactionReceipt,
-    useWriteContract,
-    type BaseError,
+  useAccount,
+  useReadContract,
+  useWaitForTransactionReceipt,
+  useWatchBlockNumber,
+  useWriteContract,
+  type BaseError,
 } from "wagmi";
 import ErrorComponent from "../components/ErrorComponent";
 import {
-    PRIMA_ABI,
-    PRIMA_ADDRESS,
-    TOKEN_ABI,
-    TOKEN_ADDRESS,
+  COLLATERAL_ABI,
+  COLLATERAL_ADDRESS,
+  PRIMA_ABI,
+  PRIMA_ADDRESS,
+  TOKEN_ABI,
+  TOKEN_ADDRESS,
 } from "../contracts";
+
 
 export default function Collateral() {
   const [amount, setAmount] = useState<number>(0);
@@ -26,15 +32,29 @@ export default function Collateral() {
     writeContract: addCollateral,
     error: writeError,
   } = useWriteContract();
-  const {
-    writeContract: approve,
-  } = useWriteContract();
+  const { writeContract: approve } = useWriteContract();
   const {
     isLoading: isConfirming,
     isSuccess: isConfirmed,
     isError: isError,
   } = useWaitForTransactionReceipt({
     hash: hash,
+  });
+
+  const { data: currentCollateral, refetch: refetchCollateral } = useReadContract({
+    address: COLLATERAL_ADDRESS,
+    abi: COLLATERAL_ABI,
+    functionName: "getCollateral",
+    args: [address],
+  }) as { data: bigint; refetch: () => void };
+
+  useWatchBlockNumber({
+    config, 
+    onBlockNumber(blockNumber) {
+      if (blockNumber) {
+        refetchCollateral()
+      }
+    },
   });
 
   const onSubmit = async () => {
@@ -55,10 +75,10 @@ export default function Collateral() {
     });
   };
 
-
   return (
     <div>
       <h1 className="text-4xl font-bold">Collatéral</h1>
+      <p>Collatéral actuel: {formatEther(currentCollateral ?? BigInt(0))} PGT</p>
       <div className="mt-8 space-y-4 max-w-2xl">
         <div className="flex items-center gap-2">
           <Input
