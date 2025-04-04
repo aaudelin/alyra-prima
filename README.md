@@ -42,7 +42,7 @@ forge script script/PrimaTokenMintLocal.s.sol:PrimaTokenMintLocalScript --rpc-ur
 ## Existing deployments
 
 ### Sepolia
-Token Address deployed at 0x148d3ee921B349c972d7E0DD5dab527C0502d640
-InvoiceNFT deployed at 0x12F300B5eFa94B784D57be9b09A6B5fF8f68eC2E
-Collateral deployed at 0xDC3a2cffBC8b16ea1208Fe6985370d2eDA964A23
-Prima deployed at 0x43792cC14690bcD18DAdFfc476799C6A3DDb18Ff
+- Token Address deployed at 0x148d3ee921B349c972d7E0DD5dab527C0502d640
+- InvoiceNFT deployed at 0x12F300B5eFa94B784D57be9b09A6B5fF8f68eC2E
+- Collateral deployed at 0xDC3a2cffBC8b16ea1208Fe6985370d2eDA964A23
+- Prima deployed at 0x43792cC14690bcD18DAdFfc476799C6A3DDb18Ff
