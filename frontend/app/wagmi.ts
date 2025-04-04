@@ -5,10 +5,6 @@ import { sepolia, foundry } from "wagmi/chains";
 export const config = getDefaultConfig({
   appName: "Prima App",
   projectId: process.env.NEXT_PUBLIC_PROJECT_ID ?? "",
-  transports: {
-    [foundry.id]: http(),
-    [sepolia.id]: http(),
-  },
   chains: [foundry, sepolia],
   ssr: true,
 });
