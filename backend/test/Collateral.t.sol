@@ -97,7 +97,6 @@ contract CollateralTest is Test {
         collateral.withdraw(debtor, investor, 100);
     }
 
-
     function test_Deposit_Failure_ApproveFailed() public {
         vm.mockCall(address(primaToken), abi.encodeWithSelector(ERC20.approve.selector), abi.encode(false));
         vm.expectRevert();

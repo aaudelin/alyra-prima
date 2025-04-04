@@ -233,7 +233,6 @@ contract Prima {
     function payInvoice(uint256 tokenId) external {
         InvoiceNFT.Invoice memory invoice = invoiceNFT.getInvoice(tokenId);
         require(invoice.debtor.name == msg.sender, Prima_InvalidSender(msg.sender));
-        _activeCollateral[msg.sender] -= invoice.collateral;
         if (primaToken.balanceOf(msg.sender) < invoice.amount) {
             collateral.withdraw(msg.sender, address(invoice.investor.name), invoice.collateral);
             invoiceNFT.payInvoice(tokenId, false);
@@ -241,6 +240,7 @@ contract Prima {
             require(primaToken.transferFrom(msg.sender, address(invoice.investor.name), invoice.amount));
             invoiceNFT.payInvoice(tokenId, true);
         }
+        _activeCollateral[msg.sender] -= invoice.collateral;
     }
 
     /**

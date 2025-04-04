@@ -726,7 +726,6 @@ contract PrimaInvestInvoiceTest is Test {
         prima.investInvoice(1, investorCompany);
         vm.stopPrank();
     }
-
 }
 
 contract PrimaPayInvoiceTest is Test {

@@ -329,3 +329,31 @@ contract InvoiceNFTPayInvoiceTest is Test {
         invoiceNFT.payInvoice(tokenId, true);
     }
 }
+
+contract InvoiceNFTTokenURI is Test {
+    InvoiceNFT private invoiceNFT;
+    address private owner = address(this);
+    address private creditor = makeAddr("creditor");
+    address private debtor = makeAddr("debtor");
+    InvoiceNFT.Company private creditorCompany;
+    InvoiceNFT.Company private debtorCompany;
+    InvoiceNFT.InvoiceParams private invoice;
+
+    function setUp() public {
+        invoiceNFT = new InvoiceNFT(owner);
+        debtorCompany = InvoiceNFT.Company(debtor, InvoiceNFT.CreditScore.B);
+        creditorCompany = InvoiceNFT.Company(creditor, InvoiceNFT.CreditScore.A);
+        invoice = InvoiceNFT.InvoiceParams(
+            "1234567890", "Activity", "USA", block.timestamp, 1000, 300, debtorCompany, creditorCompany
+        );
+    }
+
+    function test_TokenURI() public {
+        uint256 tokenId = invoiceNFT.createInvoice(creditor, invoice);
+        console.log(invoiceNFT.tokenURI(tokenId));
+        assertEq(
+            invoiceNFT.tokenURI(tokenId),
+            "data:application/json;base64,eyJuYW1lIjoiUHJpbWEgSW52b2ljZXMiLCAiZGVzY3JpcHRpb24iOiJJbnZvaWNlcyBnZW5lcmF0ZWQgYnkgUHJpbWEiLCAiYXR0cmlidXRlcyI6IFt7ImlkIjoiMTIzNDU2Nzg5MCIsICJhY3Rpdml0eSI6IkFjdGl2aXR5IiwgImNvdW50cnkiOiJVU0EiLCAiZHVlRGF0ZSI6IjEiLCAiYW1vdW50IjoiMTAwMCIsICJhbW91bnRUb1BheSI6IjMwMCJ9XSwgImltYWdlIjoiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCM2FXUjBhRDBpT0RBd0lpQm9aV2xuYUhROUlqWXdNQ0lnZUcxc2JuTTlJbWgwZEhBNkx5OTNkM2N1ZHpNdWIzSm5Mekl3TURBdmMzWm5JajRLSUNBOElTMHRJRUpoWTJ0bmNtOTFibVFnTFMwK0NpQWdQR1JsWm5NK0NpQWdJQ0E4YkdsdVpXRnlSM0poWkdsbGJuUWdhV1E5SW1KblIzSmhaR2xsYm5RaUlIZ3hQU0l3SWlCNU1UMGlNQ0lnZURJOUlqQWlJSGt5UFNJeElqNEtJQ0FnSUNBZ1BITjBiM0FnYjJabWMyVjBQU0l3SlNJZ2MzUnZjQzFqYjJ4dmNqMGlJMlUyWlRGbU5TSXZQZ29nSUNBZ0lDQThjM1J2Y0NCdlptWnpaWFE5SWpFd01DVWlJSE4wYjNBdFkyOXNiM0k5SWlOak9XSmtaVFVpTHo0S0lDQWdJRHd2YkdsdVpXRnlSM0poWkdsbGJuUStDaUFnUEM5a1pXWnpQZ29nSUR4eVpXTjBJSGRwWkhSb1BTSXhNREFsSWlCb1pXbG5hSFE5SWpFd01DVWlJR1pwYkd3OUluVnliQ2dqWW1kSGNtRmthV1Z1ZENraUx6NEtDaUFnUENFdExTQlVhWFJzWlNBdExUNEtJQ0E4ZEdWNGRDQjRQU0kxTUNVaUlIazlJakV3TUNJZ2RHVjRkQzFoYm1Ob2IzSTlJbTFwWkdSc1pTSWdabTl1ZEMxemFYcGxQU0kyTkNJZ1ptOXVkQzFtWVcxcGJIazlJbk5sY21sbUlpQm1hV3hzUFNJak1XRXhZVEZoSWlCemRIbHNaVDBpWm05dWRDMXpkSGxzWlRvZ2FYUmhiR2xqT3lCc1pYUjBaWEl0YzNCaFkybHVaem9nTW5CNE95SStDaUFnSUNCUWNtbHRZUW9nSUR3dmRHVjRkRDRLQ2lBZ1BDRXRMU0JKYm5admFXTmxJRXhoWW1Wc0lDMHRQZ29nSUR4MFpYaDBJSGc5SWpVd0pTSWdlVDBpTVRZd0lpQjBaWGgwTFdGdVkyaHZjajBpYldsa1pHeGxJaUJtYjI1MExYTnBlbVU5SWpJMElpQm1iMjUwTFdaaGJXbHNlVDBpUjJWdmNtZHBZU0lnWm1sc2JEMGlJMkUyTjJNd01DSWdiR1YwZEdWeUxYTndZV05wYm1jOUlqTWlQZ29nSUNBZ1NVNVdUMGxEUlFvZ0lEd3ZkR1Y0ZEQ0S0NpQWdQQ0V0TFNCSmJuWnZhV05sSUVKdlpIa2dMUzArQ2lBZ1BISmxZM1FnZUQwaU1UQXdJaUI1UFNJeU1EQWlJSGRwWkhSb1BTSTJNREFpSUdobGFXZG9kRDBpTXpBd0lpQnllRDBpTWpBaUlISjVQU0l5TUNJZ1ptbHNiRDBpSTJabVptWm1aaUlnYzNSeWIydGxQU0lqWkRSak1tWXdJaUJ6ZEhKdmEyVXRkMmxrZEdnOUlqSWlMejRLSUNBS0lDQThJUzB0SUZSaFlteGxJRWhsWVdScGJtZHpJQzB0UGdvS0lDQThJUzB0SUVScGRtbGtaWElnVEdsdVpTQXRMVDRLSUNBOGJHbHVaU0I0TVQwaU1USXdJaUI1TVQwaU1qUTFJaUI0TWowaU5qZ3dJaUI1TWowaU1qUTFJaUJ6ZEhKdmEyVTlJaU5qWTJNaUlITjBjbTlyWlMxM2FXUjBhRDBpTVNJdlBnb0tJQ0E4SVMwdElFWnZiM1JsY2lCdGIyNXZaM0poYlNBdExUNEtJQ0E4ZEdWNGRDQjRQU0kzTWpBaUlIazlJalUxTUNJZ1ptOXVkQzF6YVhwbFBTSXlNQ0lnWm1sc2JEMGlJems1T1NJZ1ptOXVkQzFtWVcxcGJIazlJa2RsYjNKbmFXRWlJRzl3WVdOcGRIazlJakF1TnlJK0NpQWdJQ0JhQ2lBZ1BDOTBaWGgwUGdvOEwzTjJaejQ9In0="
+        );
+    }
+}
