@@ -30,14 +30,26 @@ Set the env vars
 source .env
 ```
 
+### Local
 Deploy the ERC 20 Token
 ```bash
-forge script script/PrimaToken.s.sol:PrimaTokenScript --rpc-url $RPC_URL --private-key $PRIVATE_KEY --etherscan-api-key $ETHERSCAN_API_KEY --verify  --broadcast 
+forge script script/PrimaToken.s.sol:PrimaTokenScript --rpc-url $RPC_URL --private-key $PRIVATE_KEY --broadcast 
 ```
 
 Deploy the Prima contract and children (Invoice NFT and Collateral)
 ```bash
-forge script script/Prima.s.sol:PrimaScript --rpc-url $RPC_URL --private-key $PRIVATE_KEY --etherscan-api-key $ETHERSCAN_API_KEY --verify  --broadcast $TOKEN_ADDRESS --sig 'run(address)'
+forge script script/Prima.s.sol:PrimaScript --rpc-url $RPC_URL --private-key $PRIVATE_KEY --broadcast $TOKEN_ADDRESS --sig 'run(address)'
+```
+
+### Sepolia
+Deploy the ERC 20 Token
+```bash
+forge script script/PrimaToken.s.sol:PrimaTokenScript --rpc-url $RPC_URL --private-key $PRIVATE_KEY --etherscan-api-key $ETHERSCAN_API_KEY --verify --broadcast 
+```
+
+Deploy the Prima contract and children (Invoice NFT and Collateral)
+```bash
+forge script script/Prima.s.sol:PrimaScript --rpc-url $RPC_URL --private-key $PRIVATE_KEY --etherscan-api-key $ETHERSCAN_API_KEY --verify --broadcast $TOKEN_ADDRESS --sig 'run(address)'
 ```
 
 ## Mint Tokens
