@@ -39,19 +39,19 @@ contract Prima {
      * @notice InvoiceNFT contract
      * @dev The InvoiceNFT contract is used to create and manage invoices
      */
-    InvoiceNFT public invoiceNFT;
+    InvoiceNFT public immutable invoiceNFT;
 
     /**
      * @notice Collateral contract
      * @dev The Collateral contract is used to manage collateral
      */
-    Collateral public collateral;
+    Collateral public immutable collateral;
 
     /**
      * @notice PrimaToken contract
      * @dev The PrimaToken contract is used to manage the Prima token
      */
-    PrimaToken public primaToken;
+    PrimaToken public immutable primaToken;
 
     /**
      * @notice Error for invalid invoice amount to pay
@@ -117,7 +117,7 @@ contract Prima {
      * @param collateralAmount The amount of collateral to add
      */
     function addCollateral(uint256 collateralAmount) external {
-        primaToken.transferFrom(msg.sender, address(collateral), collateralAmount);
+        require(primaToken.transferFrom(msg.sender, address(collateral), collateralAmount));
         collateral.deposit(msg.sender, collateralAmount);
     }
 
@@ -204,8 +204,8 @@ contract Prima {
             _activeCollateral[msg.sender] + collateralAmount <= totalCollateral,
             Prima_InvalidCollateralAmount(collateralAmount, _activeCollateral[msg.sender], totalCollateral)
         );
-        invoiceNFT.acceptInvoice(tokenId, collateralAmount);
         _activeCollateral[msg.sender] += collateralAmount;
+        invoiceNFT.acceptInvoice(tokenId, collateralAmount);
     }
 
     /**
@@ -218,9 +218,9 @@ contract Prima {
     function investInvoice(uint256 tokenId, InvoiceNFT.Company memory investor) external {
         InvoiceNFT.Invoice memory invoice = invoiceNFT.getInvoice(tokenId);
         require(investor.name == msg.sender, Prima_InvalidSender(msg.sender));
-        primaToken.transferFrom(msg.sender, address(invoice.creditor.name), invoice.amountToPay);
-        invoiceNFT.investInvoice(tokenId, investor);
         _investorInvoices[msg.sender].push(tokenId);
+        require(primaToken.transferFrom(msg.sender, address(invoice.creditor.name), invoice.amountToPay));
+        invoiceNFT.investInvoice(tokenId, investor);
     }
 
     /**
@@ -233,15 +233,14 @@ contract Prima {
     function payInvoice(uint256 tokenId) external {
         InvoiceNFT.Invoice memory invoice = invoiceNFT.getInvoice(tokenId);
         require(invoice.debtor.name == msg.sender, Prima_InvalidSender(msg.sender));
+        _activeCollateral[msg.sender] -= invoice.collateral;
         if (primaToken.balanceOf(msg.sender) < invoice.amount) {
-            primaToken.transferFrom(address(collateral), address(invoice.investor.name), invoice.collateral);
-            collateral.withdraw(msg.sender, invoice.collateral);
+            collateral.withdraw(msg.sender, address(invoice.investor.name), invoice.collateral);
             invoiceNFT.payInvoice(tokenId, false);
         } else {
-            primaToken.transferFrom(msg.sender, address(invoice.investor.name), invoice.amount);
+            require(primaToken.transferFrom(msg.sender, address(invoice.investor.name), invoice.amount));
             invoiceNFT.payInvoice(tokenId, true);
         }
-        _activeCollateral[msg.sender] -= invoice.collateral;
     }
 
     /**

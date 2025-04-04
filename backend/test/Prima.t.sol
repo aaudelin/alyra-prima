@@ -109,6 +109,17 @@ contract PrimaCollateralTest is Test {
         prima.addCollateral(100 * 10 ** primaTokenDecimals);
         vm.stopPrank();
     }
+
+    function test_AddCollateral_Failure_TransferFailed() public {
+        primaToken.mint(debtor, 1000000 * 10 ** primaTokenDecimals);
+        uint256 collateralAmount = 100 * 10 ** primaTokenDecimals;
+        vm.startPrank(debtor);
+        primaToken.approve(address(prima), collateralAmount);
+        vm.mockCall(address(primaToken), abi.encodeWithSelector(ERC20.transferFrom.selector), abi.encode(false));
+        vm.expectRevert();
+        prima.addCollateral(collateralAmount);
+        vm.stopPrank();
+    }
 }
 
 contract PrimaAmountsTest is Test {
@@ -701,6 +712,21 @@ contract PrimaInvestInvoiceTest is Test {
         prima.investInvoice(1, investorCompany);
         vm.stopPrank();
     }
+
+    function test_InvestInvoice_Failure_TransferFailed() public {
+        vm.startPrank(debtor);
+        prima.acceptInvoice(1, 0);
+        vm.stopPrank();
+
+        vm.startPrank(investor);
+        primaToken.mint(investor, 1000000);
+        primaToken.approve(address(prima), invoice.amountToPay);
+        vm.mockCall(address(primaToken), abi.encodeWithSelector(ERC20.transferFrom.selector), abi.encode(false));
+        vm.expectRevert();
+        prima.investInvoice(1, investorCompany);
+        vm.stopPrank();
+    }
+
 }
 
 contract PrimaPayInvoiceTest is Test {
@@ -823,6 +849,15 @@ contract PrimaPayInvoiceTest is Test {
 
         vm.startPrank(address(prima));
         assertEq(collateral.getCollateral(debtor), 0);
+        vm.stopPrank();
+    }
+
+    function test_PayInvoice_Failure_TransferFailed() public {
+        vm.startPrank(debtor);
+        primaToken.approve(address(prima), invoice.amount);
+        vm.mockCall(address(primaToken), abi.encodeWithSelector(ERC20.transferFrom.selector), abi.encode(false));
+        vm.expectRevert();
+        prima.payInvoice(1);
         vm.stopPrank();
     }
 }

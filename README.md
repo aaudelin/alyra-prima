@@ -2,6 +2,19 @@
 
 ## Backend
 
+### Test
+
+Run automated tests
+```bash
+forge test
+```
+
+Run slither
+```bash
+slither .
+```
+
+
 ### Deployment
 
 Configure `.env` file
