@@ -30,4 +30,23 @@ contract PrimaTokenMintLocalScript is Script {
 
         vm.stopBroadcast();
     }
+
+    function runSepolia(address primaTokenAddress) public {
+        vm.startBroadcast(msg.sender);
+
+        address[3] memory tos = [
+            0x88cf3F31fe3c067185fFC85170bE11abb101dE87,
+            0x29F2D60B0e77f76f7208FA910C51EFef98480501,
+            0xe30800Fe0775E47CccC62E04E25036E1647a4607
+        ];
+        uint256 amount = 10000 ether;
+
+        primaToken = PrimaToken(primaTokenAddress);
+
+        for (uint256 i = 0; i < tos.length; i++) {
+            primaToken.mint(tos[i], amount);
+        }
+
+        vm.stopBroadcast();
+    }
 }
