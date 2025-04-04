@@ -197,7 +197,7 @@ export default function NewClaim() {
             name="dueDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Date d'échéance</FormLabel>
+                <FormLabel>Date d&apos;échéance</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>

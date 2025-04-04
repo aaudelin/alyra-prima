@@ -3,7 +3,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useEffect } from "react";
-import { useAccount, useBalance, useReadContract, useWatchBlockNumber } from "wagmi";
+import { useAccount, useReadContract, useWatchBlockNumber } from "wagmi";
 import { formatEther } from "viem";
 import { TOKEN_ABI, TOKEN_ADDRESS } from "@/app/contracts";
 import { config } from "@/app/wagmi";
@@ -23,7 +23,9 @@ export default function Header() {
   useWatchBlockNumber({
     config, 
     onBlockNumber(blockNumber) {
-      refetchBalance()
+      if (blockNumber) {
+        refetchBalance()
+      }
     },
   })
 

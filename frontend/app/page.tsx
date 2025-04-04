@@ -1,5 +1,6 @@
 "use client";
 
+import { DefaultError } from "@tanstack/react-query";
 import { type BaseError, useAccount, useReadContract } from "wagmi";
 import ErrorComponent from "./components/ErrorComponent";
 import NotConnected from "./components/NotConnected";
@@ -15,7 +16,7 @@ export default function Home() {
     functionName: "getInvestorInvoices",
     account: address,
     args: [],
-  }) as { data: BigInt[], error: any };
+  }) as { data: bigint[], error: DefaultError };
 
   console.log(investorInvoices);
 
@@ -25,7 +26,7 @@ export default function Home() {
     functionName: "getCreditorInvoices",
     account: address,
     args: [],
-  }) as { data: BigInt[], error: any };
+  }) as { data: bigint[], error: DefaultError };
 
   const { data: debtorInvoices, error: debtorInvoicesError } = useReadContract({
     address: PRIMA_ADDRESS,
@@ -33,22 +34,22 @@ export default function Home() {
     functionName: "getDebtorInvoices",
     account: address,
     args: [],
-  }) as { data: BigInt[], error: any };
+  }) as { data: bigint[], error: DefaultError };
 
   if (!isConnected) {
     return <NotConnected />;
   }
 
   if (investorInvoicesError) {
-    return <ErrorComponent error={investorInvoicesError as unknown as BaseError} />;
+    return <ErrorComponent error={investorInvoicesError as BaseError} />;
   }
 
   if (debtorInvoicesError) {
-    return <ErrorComponent error={debtorInvoicesError as unknown as BaseError} />
+    return <ErrorComponent error={debtorInvoicesError as BaseError} />
   }
 
   if (creditorInvoicesError) {
-    return <ErrorComponent error={creditorInvoicesError as unknown as BaseError} />
+    return <ErrorComponent error={creditorInvoicesError as BaseError} />
   }
 
   return (

@@ -1,23 +1,22 @@
 "use client";
 
-import {
-  useAccount,
-  useReadContract,
-  useWaitForTransactionReceipt,
-  useWriteContract,
-  type BaseError,
-} from "wagmi";
-import {
-  PRIMA_ABI,
-  PRIMA_ADDRESS,
-  TOKEN_ABI,
-  TOKEN_ADDRESS,
-} from "../contracts";
-import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { formatEther, parseEther } from "viem";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { parseEther } from "viem";
+import {
+    useAccount,
+    useWaitForTransactionReceipt,
+    useWriteContract,
+    type BaseError,
+} from "wagmi";
 import ErrorComponent from "../components/ErrorComponent";
+import {
+    PRIMA_ABI,
+    PRIMA_ADDRESS,
+    TOKEN_ABI,
+    TOKEN_ADDRESS,
+} from "../contracts";
 
 export default function Collateral() {
   const [amount, setAmount] = useState<number>(0);
@@ -28,9 +27,7 @@ export default function Collateral() {
     error: writeError,
   } = useWriteContract();
   const {
-    data: hashApprove,
     writeContract: approve,
-    error: writeErrorApprove,
   } = useWriteContract();
   const {
     isLoading: isConfirming,
@@ -74,7 +71,7 @@ export default function Collateral() {
         {isConfirming && <div>Ajout du collatéral en cours...</div>}
         {isError && (
           <div className="text-red-500">
-            Erreur lors de l'ajout du collatéral
+            Erreur lors de l&apos;ajout du collatéral
           </div>
         )}
         {isConfirmed && (

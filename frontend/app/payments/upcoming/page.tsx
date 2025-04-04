@@ -4,6 +4,7 @@ import ErrorComponent from "@/app/components/ErrorComponent";
 import InvoiceCard from "@/app/components/InvoiceCard";
 import { PRIMA_ABI, PRIMA_ADDRESS } from "@/app/contracts";
 import { Invoice } from "@/lib/types";
+import { DefaultError } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import {
   type BaseError,
@@ -27,11 +28,8 @@ export default function UpcomingPayments() {
     abi: PRIMA_ABI,
     functionName: "getDebtorInvoices",
     account: address,
-  }) as { data: bigint[]; error: any };
+  }) as { data: bigint[]; error: DefaultError };
 
-  if (invoicesIdsError) {
-    return <ErrorComponent error={invoicesIdsError as unknown as BaseError} />;
-  }
 
   async function fetchInvoices() {
     try {
@@ -58,6 +56,11 @@ export default function UpcomingPayments() {
   useEffect(() => {
     fetchInvoices();
   }, [invoicesIds]);
+
+
+  if (invoicesIdsError) {
+    return <ErrorComponent error={invoicesIdsError as BaseError} />;
+  }
 
   return (
     <div>

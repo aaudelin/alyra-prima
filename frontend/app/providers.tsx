@@ -11,7 +11,7 @@ import {
 
 import { config } from "./wagmi";
 
-const CustomAvatar: AvatarComponent = ({ address, ensImage, size }) => {
+const CustomAvatar: AvatarComponent = ({ size }) => {
   const color = "hsl(var(--primary))";
   return (
     <div

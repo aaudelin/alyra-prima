@@ -113,7 +113,7 @@ export default function InvoiceCard({
     if (isAccepted || isInvested) {
       refetch?.();
     }
-  }, [isAccepted]);
+  }, [isAccepted, isInvested, refetch]);
 
   return (
     <div className="border rounded-lg p-6 bg-white shadow-sm">
@@ -205,7 +205,7 @@ export default function InvoiceCard({
           )}
           {isErrorAccepting && (
             <div className="text-red-500">
-              Erreur lors de l'achat de la créance
+              Erreur lors de l&apos;achat de la créance
             </div>
           )}
           <Button type="button" onClick={onAcceptInvoice}>
@@ -219,7 +219,7 @@ export default function InvoiceCard({
           <div className="flex flex-col gap-2 mt-4 w-full">
             {isApproving && <div>Approver le transfert en cours...</div>}
             {isErrorApproving && (
-              <div className="text-red-500">Erreur lors de l'approbation</div>
+              <div className="text-red-500">Erreur lors de l&apos;approbation</div>
             )}
             {isInvesting && <div>Investir dans la créance en cours...</div>}
             {isInvested && (
@@ -227,7 +227,7 @@ export default function InvoiceCard({
             )}
             {isErrorInvesting && (
               <div className="text-red-500">
-                Erreur lors de l'investissement
+                Erreur lors de l&apos;investissement
               </div>
             )}
             <Button type="button" onClick={onInvestInvoice}>
