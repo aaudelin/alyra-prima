@@ -8,7 +8,7 @@ export const config = getDefaultConfig({
   chains: [foundry, sepolia],
   ssr: true,
   transports: {
-    [sepolia.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
+    [sepolia.id]: http('/api/rpc'),
     [foundry.id]: http(),
   },
 });
