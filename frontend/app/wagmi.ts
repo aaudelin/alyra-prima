@@ -1,5 +1,4 @@
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { http } from "viem";
 import { sepolia, foundry } from "wagmi/chains";
 
 export const config = getDefaultConfig({
