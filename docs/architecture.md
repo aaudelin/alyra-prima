@@ -49,67 +49,17 @@ classDiagram
         +mint(to: address, amount: uint256)
     }
 
-    %% Structures et Enums
-    class Company {
-        +name: address
-        +creditScore: CreditScore
-    }
-
-    class Invoice {
-        +id: string
-        +activity: string
-        +country: string
-        +dueDate: uint256
-        +amount: uint256
-        +amountToPay: uint256
-        +collateral: uint256
-        +debtor: Company
-        +creditor: Company
-        +investor: Company
-        +invoiceStatus: InvoiceStatus
-    }
-
-    class InvoiceParams {
-        +id: string
-        +activity: string
-        +country: string
-        +dueDate: uint256
-        +amount: uint256
-        +amountToPay: uint256
-        +debtor: Company
-        +creditor: Company
-    }
-
-    class CreditScore {
-        <<enumeration>>
-        A
-        B
-        C
-        D
-        E
-        F
-    }
-
-    class InvoiceStatus {
-        <<enumeration>>
-        NEW
-        ACCEPTED
-        IN_PROGRESS
-        PAID
-        OVERDUE
-    }
-
     %% OpenZeppelin Contracts
     class ERC721 {
-        <<interface>>
+        <<implementation>>
     }
 
     class ERC20 {
-        <<interface>>
+        <<implementation>>
     }
 
     class Ownable {
-        <<interface>>
+        <<implementation>>
     }
 
     class Math {
@@ -125,8 +75,8 @@ classDiagram
     }
 
     %% Relations entre les contrats
-    Prima --> InvoiceNFT : utilise
-    Prima --> Collateral : utilise
+    Prima --> InvoiceNFT : utilise et possède
+    Prima --> Collateral : utilise et possède
     Prima --> PrimaToken : utilise
     Prima ..> Math : utilise
     Collateral --> PrimaToken : utilise
@@ -138,17 +88,6 @@ classDiagram
     InvoiceNFT ..> Strings : utilise
     PrimaToken --|> ERC20
     Collateral --|> Ownable
-
-    %% Relations avec les structures
-    Prima ..> Company : utilise
-    Prima ..> InvoiceParams : utilise
-    Prima ..> Invoice : utilise
-    Prima ..> CreditScore : utilise
-    InvoiceNFT ..> Invoice : utilise
-    InvoiceNFT ..> InvoiceParams : utilise
-    InvoiceNFT ..> Company : utilise
-    InvoiceNFT ..> InvoiceStatus : utilise
-    InvoiceNFT ..> CreditScore : utilise
 ```
 
 ## Description des Contrats
