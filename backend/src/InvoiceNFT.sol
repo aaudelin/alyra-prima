@@ -203,17 +203,12 @@ contract InvoiceNFT is ERC721, Ownable {
         emit InvoiceNFT_StatusChanged(tokenId, _invoices[tokenId].invoiceStatus);
     }
 
-    function _baseURI() internal pure override returns (string memory) {
-        return "data:application/json;base64,";
-    }
-
-    function _getSVG() internal pure returns (string memory) {
-        string memory baseURL = "data:image/svg+xml;base64,";
-        string memory svgBase64Encoded =
-            "PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIEJhY2tncm91bmQgLS0+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJnR3JhZGllbnQiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U2ZTFmNSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNjOWJkZTUiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjYmdHcmFkaWVudCkiLz4KCiAgPCEtLSBUaXRsZSAtLT4KICA8dGV4dCB4PSI1MCUiIHk9IjEwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSI2NCIgZm9udC1mYW1pbHk9InNlcmlmIiBmaWxsPSIjMWExYTFhIiBzdHlsZT0iZm9udC1zdHlsZTogaXRhbGljOyBsZXR0ZXItc3BhY2luZzogMnB4OyI+CiAgICBQcmltYQogIDwvdGV4dD4KCiAgPCEtLSBJbnZvaWNlIExhYmVsIC0tPgogIDx0ZXh0IHg9IjUwJSIgeT0iMTYwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjI0IiBmb250LWZhbWlseT0iR2VvcmdpYSIgZmlsbD0iI2E2N2MwMCIgbGV0dGVyLXNwYWNpbmc9IjMiPgogICAgSU5WT0lDRQogIDwvdGV4dD4KCiAgPCEtLSBJbnZvaWNlIEJvZHkgLS0+CiAgPHJlY3QgeD0iMTAwIiB5PSIyMDAiIHdpZHRoPSI2MDAiIGhlaWdodD0iMzAwIiByeD0iMjAiIHJ5PSIyMCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZDRjMmYwIiBzdHJva2Utd2lkdGg9IjIiLz4KICAKICA8IS0tIFRhYmxlIEhlYWRpbmdzIC0tPgoKICA8IS0tIERpdmlkZXIgTGluZSAtLT4KICA8bGluZSB4MT0iMTIwIiB5MT0iMjQ1IiB4Mj0iNjgwIiB5Mj0iMjQ1IiBzdHJva2U9IiNjY2MiIHN0cm9rZS13aWR0aD0iMSIvPgoKICA8IS0tIEZvb3RlciBtb25vZ3JhbSAtLT4KICA8dGV4dCB4PSI3MjAiIHk9IjU1MCIgZm9udC1zaXplPSIyMCIgZmlsbD0iIzk5OSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEiIG9wYWNpdHk9IjAuNyI+CiAgICBaCiAgPC90ZXh0Pgo8L3N2Zz4=";
-        return string(abi.encodePacked(baseURL, svgBase64Encoded));
-    }
-
+    /**
+     * @notice Get the tokenURI of the invoice
+     * @dev The token URI contains Onchain metadata store in Base64
+     * @param tokenId The tokenId of the invoice
+     * @return tokenURI The tokenURI of the invoice
+     */
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         _requireOwned(tokenId);
         Invoice memory invoice = _invoices[tokenId];
@@ -253,4 +248,27 @@ contract InvoiceNFT is ERC721, Ownable {
             )
         );
     }
+
+    /**
+     * @notice Get the baseURI of the invoice
+     * @dev The baseURI is the base URL of the tokenURI
+     * @return baseURI The baseURI of the invoice
+     */
+    function _baseURI() internal pure override returns (string memory) {
+        return "data:application/json;base64,";
+    }
+
+    /**
+     * @notice Get the SVG of the invoice
+     * @dev The SVG is store in Base64
+     * @return svg The SVG of the invoice
+     */
+    function _getSVG() internal pure returns (string memory) {
+        string memory baseURL = "data:image/svg+xml;base64,";
+        string memory svgBase64Encoded =
+            "PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIEJhY2tncm91bmQgLS0+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImJnR3JhZGllbnQiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2U2ZTFmNSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNjOWJkZTUiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjYmdHcmFkaWVudCkiLz4KCiAgPCEtLSBUaXRsZSAtLT4KICA8dGV4dCB4PSI1MCUiIHk9IjEwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSI2NCIgZm9udC1mYW1pbHk9InNlcmlmIiBmaWxsPSIjMWExYTFhIiBzdHlsZT0iZm9udC1zdHlsZTogaXRhbGljOyBsZXR0ZXItc3BhY2luZzogMnB4OyI+CiAgICBQcmltYQogIDwvdGV4dD4KCiAgPCEtLSBJbnZvaWNlIExhYmVsIC0tPgogIDx0ZXh0IHg9IjUwJSIgeT0iMTYwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjI0IiBmb250LWZhbWlseT0iR2VvcmdpYSIgZmlsbD0iI2E2N2MwMCIgbGV0dGVyLXNwYWNpbmc9IjMiPgogICAgSU5WT0lDRQogIDwvdGV4dD4KCiAgPCEtLSBJbnZvaWNlIEJvZHkgLS0+CiAgPHJlY3QgeD0iMTAwIiB5PSIyMDAiIHdpZHRoPSI2MDAiIGhlaWdodD0iMzAwIiByeD0iMjAiIHJ5PSIyMCIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjZDRjMmYwIiBzdHJva2Utd2lkdGg9IjIiLz4KICAKICA8IS0tIFRhYmxlIEhlYWRpbmdzIC0tPgoKICA8IS0tIERpdmlkZXIgTGluZSAtLT4KICA8bGluZSB4MT0iMTIwIiB5MT0iMjQ1IiB4Mj0iNjgwIiB5Mj0iMjQ1IiBzdHJva2U9IiNjY2MiIHN0cm9rZS13aWR0aD0iMSIvPgoKICA8IS0tIEZvb3RlciBtb25vZ3JhbSAtLT4KICA8dGV4dCB4PSI3MjAiIHk9IjU1MCIgZm9udC1zaXplPSIyMCIgZmlsbD0iIzk5OSIgZm9udC1mYW1pbHk9Ikdlb3JnaWEiIG9wYWNpdHk9IjAuNyI+CiAgICBaCiAgPC90ZXh0Pgo8L3N2Zz4=";
+        return string(abi.encodePacked(baseURL, svgBase64Encoded));
+    }
+
+    
 }
