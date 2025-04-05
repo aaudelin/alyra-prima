@@ -89,6 +89,6 @@ npm run dev
 
 ### Sepolia
 - Token Address deployed at 0x148d3ee921B349c972d7E0DD5dab527C0502d640
-- InvoiceNFT deployed at 0x79Dd05992a63d7D143B5a9AEDD15B16aC97A5BC2
-- Collateral deployed at 0x41ac467E377aee2eaA643F1a31CDb01A9E15A89F
-- Prima deployed at 0xdd4c20bEf5Ab8ca9af4031Fd858b8162ed1e572d
+-  InvoiceNFT deployed at 0x144948DCa9f1F7f86c2f1efcaAD920cB7a86b9A1
+-  Collateral deployed at 0x13C8Ae839b7C14794376C1aB9A19886d4996a09a
+-  Prima deployed at 0x3f1B74647f34F6017CdB0C230BFE5157610B6b98
