@@ -8,11 +8,11 @@ classDiagram
         +InvoiceNFT invoiceNFT
         +Collateral collateral
         +PrimaToken primaToken
+        +addCollateral()
         +generateInvoice()
         +acceptInvoice()
         +investInvoice()
         +payInvoice()
-        +addCollateral()
     }
 
     class InvoiceNFT {
@@ -39,15 +39,15 @@ classDiagram
 
     %% OpenZeppelin Contracts
     class ERC721 {
-        <<interface>>
+        <<implementation>>
     }
 
     class ERC20 {
-        <<interface>>
+        <<implementation>>
     }
 
     class Ownable {
-        <<interface>>
+        <<implementation>>
     }
 
     class Math {
